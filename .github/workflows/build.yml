@@ -31,21 +31,25 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./android/gradlew  # Grant permission to gradlew  ##
 
+      - name: Clean project
+        run: ./gradlew clean
+        working-directory: ./android
+
       - name: Build APK
-        run: ./gradlew assembleDebug --stacktrace  # Build release APK with stacktrace for better error reporting  ##
+        run: ./gradlew assembleRelease --stacktrace  # Build release APK with stacktrace for better error reporting  ##
         working-directory: ./android
         
       - name: Find APK files
         run: find . -name "*.apk" -print  # Find and print the path to all APK files in the project ##
 
       - name: List APK files
-        run: ls -R android/app/build/outputs/apk/debug  # List files to ensure APK exists  ##
+        run: ls -R android/app/build/outputs/apk/release  # List files to ensure APK exists  ##
 
       - name: Upload APK Release
         uses: actions/upload-artifact@v3
         with:
           name: Apk release generated
-          path: android/app/build/outputs/apk/debug  # Store APK in this path  ##
+          path: android/app/build/outputs/apk/release  # Store APK in this path  ##
       
       # - name: Save bundle file
       #   uses: actions/upload-artifact@v3
