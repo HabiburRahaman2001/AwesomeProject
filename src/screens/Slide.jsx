@@ -36,7 +36,7 @@ const Slide = () => {
     <View style={styles.container}>
       <Animated.View style={[styles.slide, { transform: [{ translateY }] }]}>
         <TouchableOpacity onPress={handlePress}>
-          <Text style={styles.text}>START</Text>
+          <Text style={styles.text}>TAP</Text>
         </TouchableOpacity>
       </Animated.View>
     </View>
