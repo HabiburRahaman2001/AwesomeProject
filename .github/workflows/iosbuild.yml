@@ -1,0 +1,58 @@
+name: Build-for-ios
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    name: Build and export ipa for React Native
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16 # Or your project-specific Node version
+
+      - name: Install Yarn
+        run: npm install -g yarn
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Install Pods
+        working-directory: ios
+        run: pod install
+
+      - name: Set Default Scheme
+        run: |
+          scheme_list=$(xcodebuild -list -json | tr -d "\n")
+          default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['project']['targets'][0]")
+          echo $default | cat >default
+          echo Using default scheme: $default
+
+      - name: Build IPA
+        env:
+          scheme: ${{ 'default' }}
+        run: |
+          if [ $scheme = default ]; then scheme=$(cat default); fi
+          file_to_build="ios/YourApp.xcworkspace"
+
+          # Clean and build the archive
+          xcodebuild clean archive -scheme "$scheme" -workspace "$file_to_build" -configuration Release -archivePath ./build/"$scheme".xcarchive | xcpretty
+
+          # Export IPA
+          xcodebuild -exportArchive \
+            -archivePath ./build/"$scheme".xcarchive \
+            -exportOptionsPlist ios/ExportOptions.plist \  # Path to the plist file
+            -exportPath ./build/ | xcpretty
+
+      - name: Upload IPA as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: MyApp.ipa
+          path: ./build/*.ipa
