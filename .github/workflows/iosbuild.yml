@@ -1,4 +1,4 @@
-name: Build-for-ios
+name: Build ipo for ios
 
 on:
   push:
@@ -28,6 +28,10 @@ jobs:
         working-directory: ios
         run: pod install
 
+      - name: Install CocoaPods
+        working-directory: ios
+        run: pod install
+  
       - name: Set Default Scheme
         run: |
           scheme_list=$(xcodebuild -list -json | tr -d "\n")
@@ -40,7 +44,7 @@ jobs:
           scheme: ${{ 'default' }}
         run: |
           if [ $scheme = default ]; then scheme=$(cat default); fi
-          file_to_build="ios/YourApp.xcworkspace"
+          file_to_build="ios/AwesomeProject.xcworkspace"
 
           # Clean and build the archive
           xcodebuild clean archive -scheme "$scheme" -workspace "$file_to_build" -configuration Release -archivePath ./build/"$scheme".xcarchive | xcpretty
