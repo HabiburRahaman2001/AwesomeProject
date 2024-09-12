@@ -3,8 +3,6 @@ name: Build apk for android
 on:
   push:
     branches: [ "main" ]
-  # pull_request:
-  #   branches: [ "main" ]
 
 jobs:
   build:
@@ -45,15 +43,34 @@ jobs:
       - name: List APK files
         run: ls -R android/app/build/outputs/apk/release  # List files to ensure APK exists  ##
 
+      # Set up Appium environment
+      - name: Install Appium and dependencies
+        run: |
+          npm install -g appium
+          npm install -g appium-doctor
+          appium-doctor --android  # Ensure the Appium environment is set up correctly for Android
+
+      - name: Set up Android Emulator
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 30
+          target: google_apis
+          arch: x86_64
+          profile: Nexus6
+          emulator-options: "-no-window -no-boot-anim"
+          script: ./gradlew connectedAndroidTest
+          disable-animations: true
+
+      # Run Appium Tests
+      - name: Run Appium Tests
+        run: |
+          appium &
+          npm run test:e2e  # Assuming you have a script to run your Appium tests in package.json
+
+      # If tests succeed, store the APK
       - name: Upload APK Release
+        if: success()  # Only run this if tests pass
         uses: actions/upload-artifact@v3
         with:
           name: Apk release generated
           path: android/app/build/outputs/apk/release  # Store APK in this path  ##
-      
-      # - name: Save bundle file
-      #   uses: actions/upload-artifact@v3
-      #   continue-on-error: true
-      #   with:
-      #     name: bundle-file
-      #     path: android/app/build/ASSETS/createBundleReleaseJsAndAssets/index.android.bundle
