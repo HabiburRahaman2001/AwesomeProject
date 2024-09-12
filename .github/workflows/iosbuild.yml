@@ -1,62 +1,54 @@
-name: Build ipo for ios
+name: Build ipa for ios
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+  # pull_request:
+  #   branches:
+  #     - main
 
 jobs:
   build:
-    name: Build and export ipa for React Native
     runs-on: macos-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16 # Or your project-specific Node version
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20' 
 
-      - name: Install Yarn
-        run: npm install -g yarn
+    - name: Install dependencies
+      run: |
+        npm install
+        cd ios
+        pod install
 
-      - name: Install dependencies
-        run: yarn install
+    - name: List Xcode schemes
+      run: |
+        xcodebuild -list -workspace ios/AwesomeProject.xcworkspace
 
-      - name: Install Pods
-        working-directory: ios
-        run: pod install
+    - name: Build iOS app
+      run: |
+        xcodebuild -project ios/AwesomeProject.xcodeproj \
+                   -scheme AwesomeProject \
+                   -sdk iphoneos \
+                   -configuration Release \
+                   archive \
+                   -archivePath ${{ github.workspace }}/build/AwesomeProject.xcarchive
 
-      - name: Install CocoaPods
-        working-directory: ios
-        run: pod install
-  
-      - name: Set Default Scheme
-        run: |
-          scheme_list=$(xcodebuild -list -json | tr -d "\n")
-          default=$(echo $scheme_list | ruby -e "require 'json'; puts JSON.parse(STDIN.gets)['project']['targets'][0]")
-          echo $default | cat >default
-          echo Using default scheme: $default
+    - name: Export iOS app
+      run: |
+        xcodebuild -exportArchive \
+                   -archivePath ${{ github.workspace }}/build/AwesomeProject.xcarchive \
+                   -exportOptionsPlist ios/ExportOptions.plist \
+                   -exportPath ${{ github.workspace }}/build
 
-      - name: Build IPA
-        env:
-          scheme: ${{ 'default' }}
-        run: |
-          if [ $scheme = default ]; then scheme=$(cat default); fi
-          file_to_build="ios/AwesomeProject.xcworkspace"
-
-          # Clean and build the archive
-          xcodebuild clean archive -scheme "$scheme" -workspace "$file_to_build" -configuration Release -archivePath ./build/"$scheme".xcarchive | xcpretty
-
-          # Export IPA
-          xcodebuild -exportArchive \
-            -archivePath ./build/"$scheme".xcarchive \
-            -exportOptionsPlist ios/ExportOptions.plist \  # Path to the plist file
-            -exportPath ./build/ | xcpretty
-
-      - name: Upload IPA as Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: MyApp.ipa
-          path: ./build/*.ipa
+    - name: Upload iOS build artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ios-build
+        path: ${{ github.workspace }}/build/AwesomeProject.ipa
