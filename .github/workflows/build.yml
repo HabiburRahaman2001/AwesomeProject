@@ -7,6 +7,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        api-level: [28, 29, 30, 31, 32, 33, 34]  # All API levels from 28 to 34
     steps:
       - uses: actions/checkout@v3  # Git checkout ##
       
@@ -53,12 +56,11 @@ jobs:
       - name: Set up Android Emulator
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
-          api-level: 30
-          target: google_apis
+          api-level: ${{ matrix.api-level }}  # Run for each API level in the matrix
+          target: google_apis  # Use google_apis as the target for emulation
           arch: x86_64
-          profile: Nexus6
+          profile: Pixel_4  # Use a valid profile like Pixel_4, Pixel_5, etc.
           emulator-options: "-no-window -no-boot-anim"
-          script: ./gradlew connectedAndroidTest
           disable-animations: true
 
       # Run Appium Tests
