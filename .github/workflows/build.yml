@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        api-level: [34]  # All API levels from 28 to 34
+        api-level: [30]  # All API levels from 28 to 34
     steps:
       - uses: actions/checkout@v3  # Git checkout ##
       
@@ -46,6 +46,16 @@ jobs:
       - name: List APK files
         run: ls -R android/app/build/outputs/apk/release  # List files to ensure APK exists  ##
 
+      # Set up Android SDK and ADB tools
+      - name: Set up Android SDK
+        uses: actions/setup-android@v3
+        with:
+          api-level: 30  # Define a default API level for the SDK installation
+          target: default
+          arch: x86_64
+        env:
+          ANDROID_SDK_ROOT: ${{ runner.temp }}/android-sdk  # Set Android SDK root environment variable
+
       # Set up Appium environment
       - name: Install Appium and dependencies
         run: |
@@ -59,9 +69,10 @@ jobs:
           api-level: ${{ matrix.api-level }}  # Run for each API level in the matrix
           target: google_apis  # Use google_apis as the target for emulation
           arch: x86_64
-          profile: Pixel_4  # Use a valid profile like Pixel_4, Pixel_5, etc.
+          # profile: Pixel_4  # Use a valid profile like Pixel_4, Pixel_5, etc.
           emulator-options: "-no-window -no-boot-anim"
           disable-animations: true
+          script: ./gradlew connectedAndroidTest  # Run tests after the emulator starts
 
       # Run Appium Tests
       - name: Run Appium Tests
