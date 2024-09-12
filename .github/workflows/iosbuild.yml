@@ -33,7 +33,7 @@ jobs:
 
     - name: Build iOS app
       run: |
-        xcodebuild -project ios/AwesomeProject.xcodeproj \
+        xcodebuild -workspace AwesomeProject.xcodeproj \
                    -scheme AwesomeProject \
                    -sdk iphoneos \
                    -configuration Release \
