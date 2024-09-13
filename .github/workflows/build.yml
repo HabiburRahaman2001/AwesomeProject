@@ -60,13 +60,17 @@ jobs:
       - name: Start Emulator
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
-          api-level: ${{ matrix.api-level }}
-          target: google_apis
+          api-level: 30
+          target: default
           arch: x86_64
           profile: Pixel_4  # Use Pixel 4 emulator
           emulator-options: "-no-window -no-boot-anim"
           disable-animations: true
+          emulator-build: 'stable'  # Use the stable emulator build
+          boot-timeout: 600  # Increase the boot timeout to 10 minutes
+          emulator-build: 'stable'  # Use stable emulator builds
 
+          
       - name: Wait for Emulator to Start
         run: adb wait-for-device
 
