@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        api-level: [34]  # All API levels from 28 to 34
+        api-level: [34]
     steps:
       - uses: actions/checkout@v3  # Git checkout
-      
+
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
@@ -21,73 +21,81 @@ jobs:
           
       - name: Run install
         run: yarn
-    
+
       - name: Set Up JDK
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: '17'   # Define Java version
+          java-version: '17'  # Define Java version
           cache: 'gradle'
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v2  # Install Android SDK
         with:
           api-level: 34
-          build-tools: 34.0.0  # Specify the build tools version
+          build-tools: 34.0.0
           target: 'google_apis'
           arch: 'x86_64'
           profile: 'Pixel_4'
 
       - name: Make gradlew executable
-        run: chmod +x ./android/gradlew  # Grant permission to gradlew
+        run: chmod +x ./android/gradlew
 
       - name: Clean project
         run: ./gradlew clean
         working-directory: ./android
 
       - name: Build APK
-        run: ./gradlew assembleRelease --stacktrace  # Build release APK with stacktrace
+        run: ./gradlew assembleRelease --stacktrace
         working-directory: ./android
 
       - name: Find APK files
-        run: find . -name "*.apk" -print  # Find and print the path to APKs
+        run: find . -name "*.apk" -print
 
       - name: List APK files
-        run: ls -R android/app/build/outputs/apk/release  # List files to verify APK exists
+        run: ls -R android/app/build/outputs/apk/release
 
       - name: Add Android SDK to PATH
         run: echo "${{ steps.setup-android.outputs.android-home }}/cmdline-tools/latest/bin" >> $GITHUB_PATH
 
-      - name: Ensure ADB is available
-        run: adb devices  # Verify adb is available and can list connected devices
-
-      # Set up Appium environment
-      - name: Install Appium and dependencies
-        run: |
-          npm install -g appium
-          npm install -g appium-doctor
-          appium-doctor --android  # Ensure the Appium environment is set up for Android
-
-      - name: Set up Android Emulator
+      - name: Start Emulator
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
-          api-level: ${{ matrix.api-level }}  # Run for each API level in the matrix
-          target: google_apis  # Use google_apis as the target for emulation
+          api-level: ${{ matrix.api-level }}
+          target: google_apis
           arch: x86_64
-          profile: Pixel_4  # Use a valid profile
+          profile: Pixel_4
           emulator-options: "-no-window -no-boot-anim"
           disable-animations: true
+
+      # Wait for emulator to boot properly
+      - name: Wait for Emulator to Start
+        run: adb wait-for-device
+
+      - name: Check Emulator Boot Status
+        run: adb shell getprop sys.boot_completed
 
       # Run Appium Tests
       - name: Run Appium Tests
         run: |
           appium &
-          npm run test:e2e  # Assuming you have a script to run your Appium tests in package.json
+          sleep 10  # Give Appium some time to start
+          npm run test:e2e
+
+      # Kill emulator only if it's running
+      - name: Kill Emulator
+        if: always()  # Always run this step to ensure the emulator is properly killed
+        run: |
+          if adb devices | grep -q emulator; then
+            adb -s emulator-5554 emu kill
+          else
+            echo "Emulator is not running"
+          fi
 
       # If tests succeed, store the APK
       - name: Upload APK Release
-        if: success()  # Only run if tests pass
+        if: success()
         uses: actions/upload-artifact@v3
         with:
           name: Apk release generated
-          path: android/app/build/outputs/apk/release  # Store APK
+          path: android/app/build/outputs/apk/release
