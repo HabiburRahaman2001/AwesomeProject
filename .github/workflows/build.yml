@@ -11,22 +11,22 @@ jobs:
       matrix:
         api-level: [34]
     steps:
-      - uses: actions/checkout@v3  # Git checkout
+      - uses: actions/checkout@v3  # Checkout repository
 
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20.x'  # Define Node version
+          node-version: '20.x'  # Use Node.js version 20.x
           cache: 'yarn'
           
-      - name: Run install
-        run: yarn
+      - name: Install dependencies
+        run: yarn  # Install project dependencies using Yarn
 
       - name: Set Up JDK
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: '17'  # Define Java version
+          java-version: '17'  # Use Java 17 for Gradle builds
           cache: 'gradle'
 
       - name: Set up Android SDK
@@ -36,7 +36,6 @@ jobs:
           build-tools: 34.0.0
           target: 'google_apis'
           arch: 'x86_64'
-          # profile: 'Pixel_4'
 
       - name: Make gradlew executable
         run: chmod +x ./android/gradlew
@@ -64,27 +63,24 @@ jobs:
           api-level: ${{ matrix.api-level }}
           target: google_apis
           arch: x86_64
-          profile: Pixel_4
+          profile: Pixel_4  # Use Pixel 4 emulator
           emulator-options: "-no-window -no-boot-anim"
           disable-animations: true
 
-      # Wait for emulator to boot properly
       - name: Wait for Emulator to Start
         run: adb wait-for-device
 
       - name: Check Emulator Boot Status
         run: adb shell getprop sys.boot_completed
 
-      # Run Appium Tests
       - name: Run Appium Tests
         run: |
           appium &
-          sleep 10  # Give Appium some time to start
-          npm run test:e2e
+          sleep 10  # Wait for Appium to initialize
+          npm run test:e2e  # Run end-to-end tests with Appium
 
-      # Kill emulator only if it's running
       - name: Kill Emulator
-        if: always()  # Always run this step to ensure the emulator is properly killed
+        if: always()  # Ensure the emulator is properly killed
         run: |
           if adb devices | grep -q emulator; then
             adb -s emulator-5554 emu kill
@@ -92,7 +88,6 @@ jobs:
             echo "Emulator is not running"
           fi
 
-      # If tests succeed, store the APK
       - name: Upload APK Release
         if: success()
         uses: actions/upload-artifact@v3
