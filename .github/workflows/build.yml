@@ -11,12 +11,12 @@ jobs:
       matrix:
         api-level: [34]  # All API levels from 28 to 34
     steps:
-      - uses: actions/checkout@v3  # Git checkout ##
+      - uses: actions/checkout@v3  # Git checkout
       
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20.x'  # Define Node version ##
+          node-version: '20.x'  # Define Node version
           cache: 'yarn'
           
       - name: Run install
@@ -25,33 +25,48 @@ jobs:
       - name: Set Up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'zulu' 
-          java-version: '17'   # Define Java version  ##
+          distribution: 'zulu'
+          java-version: '17'   # Define Java version
           cache: 'gradle'
 
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v2  # Install Android SDK
+        with:
+          api-level: 34
+          build-tools: 34.0.0  # Specify the build tools version
+          target: 'google_apis'
+          arch: 'x86_64'
+          profile: 'Pixel_4'
+
       - name: Make gradlew executable
-        run: chmod +x ./android/gradlew  # Grant permission to gradlew  ##
+        run: chmod +x ./android/gradlew  # Grant permission to gradlew
 
       - name: Clean project
         run: ./gradlew clean
         working-directory: ./android
 
       - name: Build APK
-        run: ./gradlew assembleRelease --stacktrace  # Build release APK with stacktrace for better error reporting  ##
+        run: ./gradlew assembleRelease --stacktrace  # Build release APK with stacktrace
         working-directory: ./android
-        
+
       - name: Find APK files
-        run: find . -name "*.apk" -print  # Find and print the path to all APK files in the project ##
+        run: find . -name "*.apk" -print  # Find and print the path to APKs
 
       - name: List APK files
-        run: ls -R android/app/build/outputs/apk/release  # List files to ensure APK exists  ##
+        run: ls -R android/app/build/outputs/apk/release  # List files to verify APK exists
+
+      - name: Add Android SDK to PATH
+        run: echo "${{ steps.setup-android.outputs.android-home }}/cmdline-tools/latest/bin" >> $GITHUB_PATH
+
+      - name: Ensure ADB is available
+        run: adb devices  # Verify adb is available and can list connected devices
 
       # Set up Appium environment
       - name: Install Appium and dependencies
         run: |
           npm install -g appium
           npm install -g appium-doctor
-          appium-doctor --android  # Ensure the Appium environment is set up correctly for Android
+          appium-doctor --android  # Ensure the Appium environment is set up for Android
 
       - name: Set up Android Emulator
         uses: ReactiveCircus/android-emulator-runner@v2
@@ -59,7 +74,7 @@ jobs:
           api-level: ${{ matrix.api-level }}  # Run for each API level in the matrix
           target: google_apis  # Use google_apis as the target for emulation
           arch: x86_64
-          profile: Pixel_4  # Use a valid profile like Pixel_4, Pixel_5, etc.
+          profile: Pixel_4  # Use a valid profile
           emulator-options: "-no-window -no-boot-anim"
           disable-animations: true
 
@@ -71,8 +86,8 @@ jobs:
 
       # If tests succeed, store the APK
       - name: Upload APK Release
-        if: success()  # Only run this if tests pass
+        if: success()  # Only run if tests pass
         uses: actions/upload-artifact@v3
         with:
           name: Apk release generated
-          path: android/app/build/outputs/apk/release  # Store APK in this path  ##
+          path: android/app/build/outputs/apk/release  # Store APK
