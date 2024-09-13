@@ -68,9 +68,8 @@ jobs:
           disable-animations: true
           emulator-build: 'stable'  # Use the stable emulator build
           boot-timeout: 600  # Increase the boot timeout to 10 minutes
-          emulator-build: 'stable'  # Use stable emulator builds
 
-          
+
       - name: Wait for Emulator to Start
         run: adb wait-for-device
 
