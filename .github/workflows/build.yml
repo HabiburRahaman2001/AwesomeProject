@@ -16,21 +16,21 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20.x'  # Use Node.js version 20.x
+          node-version: '20.x'
           cache: 'yarn'
-          
+
       - name: Install dependencies
-        run: yarn  # Install project dependencies using Yarn
+        run: yarn
 
       - name: Set Up JDK
         uses: actions/setup-java@v3
         with:
           distribution: 'zulu'
-          java-version: '17'  # Use Java 17 for Gradle builds
+          java-version: '17'
           cache: 'gradle'
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v2  # Install Android SDK
+        uses: android-actions/setup-android@v2
         with:
           api-level: 34
           build-tools: 34.0.0
@@ -60,15 +60,14 @@ jobs:
       - name: Start Emulator
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
-          api-level: 30
+          api-level: 34
           target: default
           arch: x86_64
-          profile: Pixel_4  # Use Pixel 4 emulator
+          profile: Pixel_4
           emulator-options: "-no-window -no-boot-anim"
           disable-animations: true
-          emulator-build: 'stable'  # Use the stable emulator build
-          boot-timeout: 600  # Increase the boot timeout to 10 minutes
-
+          emulator-build: 'stable'
+          boot-timeout: 600
 
       - name: Wait for Emulator to Start
         run: adb wait-for-device
@@ -79,11 +78,11 @@ jobs:
       - name: Run Appium Tests
         run: |
           appium &
-          sleep 10  # Wait for Appium to initialize
-          npm run test:e2e  # Run end-to-end tests with Appium
+          sleep 10
+          npm run test:e2e
 
       - name: Kill Emulator
-        if: always()  # Ensure the emulator is properly killed
+        if: always()
         run: |
           if adb devices | grep -q emulator; then
             adb -s emulator-5554 emu kill
