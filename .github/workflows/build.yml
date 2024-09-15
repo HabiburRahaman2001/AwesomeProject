@@ -67,7 +67,7 @@ jobs:
           emulator-options: "-no-window -no-boot-anim"
           disable-animations: true
           emulator-build: 'latest'
-          boot-timeout: 600
+          emulator-boot-timeout: 600
 
       - name: List ADB Devices
         run: adb devices
