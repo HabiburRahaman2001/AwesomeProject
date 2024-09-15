@@ -75,12 +75,18 @@ jobs:
           target: 'google_apis'
           arch: 'x86_64'
 
+      - name: Create AVD
+        run: |
+          echo "Creating AVD..."
+          echo no | $ANDROID_HOME/tools/bin/avdmanager create avd -n test_avd -k "system-images;android-34;google_apis;x86_64" --device "pixel"
+
       - name: Start Emulator
         run: |
           echo "Starting emulator..."
-          $ANDROID_HOME/emulator/emulator -avd Pixel_4 -no-window -no-boot-anim &
+          $ANDROID_HOME/emulator/emulator -avd test_avd -no-window -no-boot-anim &
           adb wait-for-device
-          
+
+
       - name: List ADB Devices
         run: adb devices
 
