@@ -66,16 +66,26 @@ jobs:
           profile: Pixel_4
           emulator-options: "-no-window -no-boot-anim"
           disable-animations: true
-          emulator-boot-timeout: 600
+          emulator-boot-timeout: 900  # Increase boot timeout if needed
 
       - name: List ADB Devices
         run: adb devices
 
       - name: Wait for Emulator to Start
-        run: adb wait-for-device
+        run: |
+          adb wait-for-device
+          adb shell getprop sys.boot_completed  # Check boot completion status
 
       - name: Check Emulator Boot Status
-        run: adb shell getprop sys.boot_completed
+        run: |
+          boot_status=$(adb shell getprop sys.boot_completed)
+          if [ "$boot_status" -ne 1 ]; then
+            echo "Emulator boot failed: $boot_status"
+            exit 1
+          fi
+
+      - name: Get Emulator Logs
+        run: adb logcat -d
 
       - name: Run Appium Tests
         run: |
