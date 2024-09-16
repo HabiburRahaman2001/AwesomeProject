@@ -1,4 +1,5 @@
-name: Build APK for Android
+
+name: Build apk for android
 
 on:
   push:
@@ -54,16 +55,19 @@ jobs:
       - name: List APK files
         run: ls -R android/app/build/outputs/apk/release
 
-      - name: Create AVD
-        run: |
-          echo "Creating AVD..."
-          echo no | ${ANDROID_HOME}/cmdline-tools/latest/bin/avdmanager create avd -n test_avd -k "system-images;android-34;google_apis;x86_64" --device "pixel"
+      - name: Add Android SDK to PATH
+        run: echo "${{ steps.setup-android.outputs.android-home }}/cmdline-tools/latest/bin" >> $GITHUB_PATH
 
       - name: Start Emulator
-        run: |
-          echo "Starting emulator..."
-          ${ANDROID_HOME}/emulator/emulator -avd test_avd -no-window -no-boot-anim &
-          adb wait-for-device
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: default
+          arch: x86_64
+          profile: Pixel_4
+          emulator-options: "-no-window -no-boot-anim"
+          disable-animations: true
+          emulator-boot-timeout: 900  # Increase boot timeout if needed
 
       - name: List ADB Devices
         run: adb devices
@@ -71,8 +75,7 @@ jobs:
       - name: Wait for Emulator to Start
         run: |
           adb wait-for-device
-          adb shell getprop sys.boot_completed
-
+          adb shell getprop sys.boot_completed  # Check boot completion status
       - name: Check Emulator Boot Status
         run: |
           boot_status=$(adb shell getprop sys.boot_completed)
@@ -80,7 +83,6 @@ jobs:
             echo "Emulator boot failed: $boot_status"
             exit 1
           fi
-
       - name: Get Emulator Logs
         run: adb logcat -d
 
@@ -89,7 +91,6 @@ jobs:
           appium &
           sleep 10
           npm run test:e2e
-
       - name: Kill Emulator
         if: always()
         run: |
@@ -98,7 +99,6 @@ jobs:
           else
             echo "Emulator is not running"
           fi
-
       - name: Upload APK Release
         if: success()
         uses: actions/upload-artifact@v3
