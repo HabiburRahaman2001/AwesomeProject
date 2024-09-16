@@ -1,107 +1,145 @@
 
+# name: Build apk for android
+
+# on:
+#   push:
+#     branches: [ "main" ]
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     strategy:
+#       matrix:
+#         api-level: [34]
+#     steps:
+#       - uses: actions/checkout@v3  # Checkout repository
+
+#       - name: Use Node.js
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: '20.x'
+#           cache: 'yarn'
+
+#       - name: Install dependencies
+#         run: yarn
+
+#       - name: Set Up JDK
+#         uses: actions/setup-java@v3
+#         with:
+#           distribution: 'zulu'
+#           java-version: '17'
+#           cache: 'gradle'
+
+#       - name: Set up Android SDK
+#         uses: android-actions/setup-android@v2
+#         with:
+#           api-level: 34
+#           build-tools: 34.0.0
+#           target: 'google_apis'
+#           arch: 'x86_64'
+
+#       - name: Make gradlew executable
+#         run: chmod +x ./android/gradlew
+
+#       - name: Clean project
+#         run: ./gradlew clean
+#         working-directory: ./android
+
+#       - name: Build APK
+#         run: ./gradlew assembleRelease --stacktrace
+#         working-directory: ./android
+
+#       - name: Find APK files
+#         run: find . -name "*.apk" -print
+
+#       - name: List APK files
+#         run: ls -R android/app/build/outputs/apk/release
+
+#       - name: Add Android SDK to PATH
+#         run: echo "${{ steps.setup-android.outputs.android-home }}/cmdline-tools/latest/bin" >> $GITHUB_PATH
+
+#       - name: Start Emulator
+#         uses: ReactiveCircus/android-emulator-runner@v2
+#         with:
+#           api-level: 34
+#           target: default
+#           arch: x86_64
+#           profile: Pixel_4
+#           emulator-options: "-no-window -no-boot-anim"
+#           disable-animations: true
+#           emulator-boot-timeout: 900  # Increase boot timeout if needed
+
+#       - name: List ADB Devices
+#         run: adb devices
+
+#       - name: Wait for Emulator to Start
+#         run: |
+#           adb wait-for-device
+#           adb shell getprop sys.boot_completed  # Check boot completion status
+#       - name: Check Emulator Boot Status
+#         run: |
+#           boot_status=$(adb shell getprop sys.boot_completed)
+#           if [ "$boot_status" -ne 1 ]; then
+#             echo "Emulator boot failed: $boot_status"
+#             exit 1
+#           fi
+#       - name: Get Emulator Logs
+#         run: adb logcat -d
+
+#       - name: Run Appium Tests
+#         run: |
+#           appium &
+#           sleep 10
+#           npm run test:e2e
+#       - name: Kill Emulator
+#         if: always()
+#         run: |
+#           if adb devices | grep -q emulator; then
+#             adb -s emulator-5554 emu kill || echo "Failed to kill emulator"
+#           else
+#             echo "Emulator is not running"
+#           fi
+#       - name: Upload APK Release
+#         if: success()
+#         uses: actions/upload-artifact@v3
+#         with:
+#           name: Apk release generated
+#           path: android/app/build/outputs/apk/release
+
+
+
+
 name: Build apk for android
 
 on:
   push:
     branches: [ "main" ]
 
+
 jobs:
+
   build:
+
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        api-level: [34]
+
     steps:
-      - uses: actions/checkout@v3  # Checkout repository
 
-      - name: Use Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-android@v1
+
         with:
-          node-version: '20.x'
-          cache: 'yarn'
 
-      - name: Install dependencies
-        run: yarn
+          android-version: '30'
 
-      - name: Set Up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-          cache: 'gradle'
+          distribution: 'stable'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v2
-        with:
-          api-level: 34
-          build-tools: 34.0.0
-          target: 'google_apis'
-          arch: 'x86_64'
+      - run: |
 
-      - name: Make gradlew executable
-        run: chmod +x ./android/gradlew
+        android avd --list
 
-      - name: Clean project
-        run: ./gradlew clean
-        working-directory: ./android
+        emulator -avd <emulator_name> -no-window
 
-      - name: Build APK
-        run: ./gradlew assembleRelease --stacktrace
-        working-directory: ./android
+      - run: npm install -g appium
 
-      - name: Find APK files
-        run: find . -name "*.apk" -print
-
-      - name: List APK files
-        run: ls -R android/app/build/outputs/apk/release
-
-      - name: Add Android SDK to PATH
-        run: echo "${{ steps.setup-android.outputs.android-home }}/cmdline-tools/latest/bin" >> $GITHUB_PATH
-
-      - name: Start Emulator
-        uses: ReactiveCircus/android-emulator-runner@v2
-        with:
-          api-level: 34
-          target: default
-          arch: x86_64
-          profile: Pixel_4
-          emulator-options: "-no-window -no-boot-anim"
-          disable-animations: true
-          emulator-boot-timeout: 900  # Increase boot timeout if needed
-
-      - name: List ADB Devices
-        run: adb devices
-
-      - name: Wait for Emulator to Start
-        run: |
-          adb wait-for-device
-          adb shell getprop sys.boot_completed  # Check boot completion status
-      - name: Check Emulator Boot Status
-        run: |
-          boot_status=$(adb shell getprop sys.boot_completed)
-          if [ "$boot_status" -ne 1 ]; then
-            echo "Emulator boot failed: $boot_status"
-            exit 1
-          fi
-      - name: Get Emulator Logs
-        run: adb logcat -d
-
-      - name: Run Appium Tests
-        run: |
-          appium &
-          sleep 10
-          npm run test:e2e
-      - name: Kill Emulator
-        if: always()
-        run: |
-          if adb devices | grep -q emulator; then
-            adb -s emulator-5554 emu kill || echo "Failed to kill emulator"
-          else
-            echo "Emulator is not running"
-          fi
-      - name: Upload APK Release
-        if: success()
-        uses: actions/upload-artifact@v3
-        with:
-          name: Apk release generated
-          path: android/app/build/outputs/apk/release
+      - run: npm test  # Run your Appium tests
