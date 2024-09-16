@@ -11,7 +11,7 @@ jobs:
       matrix:
         api-level: [34]
     steps:
-      - uses: actions/checkout@v3  # Checkout repository
+      - uses: actions/checkout@v3  # Checkout repository ##
 
       - name: Use Node.js
         uses: actions/setup-node@v3
