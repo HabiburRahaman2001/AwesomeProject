@@ -165,7 +165,7 @@ jobs:
         emulator-build: google_apis
 
     - name: Make gradlew executable
-        run: chmod +x ./android/gradlew
+      run: chmod +x ./android/gradlew
 
     # Step 5: Build the APK
     - name: Build APK
