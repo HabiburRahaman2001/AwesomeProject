@@ -7,13 +7,16 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "test": "jest"
+    "test": "jest",
+    "wdio": "wdio run ./wdio.conf.js"
   },
   "dependencies": {
     "@react-native-masked-view/masked-view": "^0.3.1",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.11.0",
     "@react-navigation/stack": "^6.4.1",
+    "@wdio/appium-service": "^9.0.9",
+    "@wdio/cli": "^9.0.9",
     "react": "18.3.1",
     "react-native": "0.75.2",
     "react-native-animatable": "^1.4.0",
@@ -32,6 +35,10 @@
     "@react-native/typescript-config": "0.75.2",
     "@types/react": "^18.2.6",
     "@types/react-test-renderer": "^18.0.0",
+    "@wdio/local-runner": "^9.0.9",
+    "@wdio/mocha-framework": "^9.0.8",
+    "@wdio/visual-service": "^6.0.0",
+    "appium-uiautomator2-driver": "^3.7.11",
     "babel-jest": "^29.6.3",
     "eslint": "^8.19.0",
     "jest": "^29.6.3",
