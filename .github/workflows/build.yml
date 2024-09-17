@@ -1,203 +1,204 @@
-# name: Build APK and IPA
-
-# on:
-#   push:
-#     branches: [ "main" ]
-
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
-#     strategy:
-#       matrix:
-#         api-level: [34]
-#     steps:
-#       - uses: actions/checkout@v3  # Checkout repository
-
-#       - name: Use Node.js
-#         uses: actions/setup-node@v3
-#         with:
-#           node-version: '20.x'
-#           cache: 'yarn'
-
-#       - name: Install dependencies
-#         run: yarn
-
-#       - name: Set Up JDK
-#         uses: actions/setup-java@v3
-#         with:
-#           distribution: 'zulu'
-#           java-version: '17'
-#           cache: 'gradle'
-
-#       - name: Set up Android SDK
-#         uses: android-actions/setup-android@v2
-#         with:
-#           api-level: 34
-#           build-tools: 34.0.0
-#           target: 'google_apis'
-#           arch: 'x86_64'
-
-#       - name: Make gradlew executable
-#         run: chmod +x ./android/gradlew
-
-#       - name: Clean project
-#         run: ./gradlew clean
-#         working-directory: ./android
-
-#       - name: Build APK
-#         run: ./gradlew assembleRelease --stacktrace
-#         working-directory: ./android
-
-#       - name: Find APK files
-#         run: find . -name "*.apk" -print
-
-#       - name: List APK files
-#         run: ls -R android/app/build/outputs/apk/release
-
-#       - name: Add Android SDK to PATH
-#         run: echo "${{ steps.setup-android.outputs.android-home }}/cmdline-tools/latest/bin" >> $GITHUB_PATH
-
-#       - name: Start Emulator
-#         uses: ReactiveCircus/android-emulator-runner@v2
-#         with:
-#           api-level: 34
-#           target: default
-#           arch: x86_64
-#           profile: Pixel_4
-#           emulator-options: "-no-window -no-boot-anim"
-#           disable-animations: true
-#           emulator-boot-timeout: 900  # Increase boot timeout if needed
-
-#       - name: List ADB Devices
-#         run: adb devices
-
-#       - name: Wait for Emulator to Start
-#         run: |
-#           adb wait-for-device
-#           adb shell getprop sys.boot_completed  # Check boot completion status
-
-#       - name: Check Emulator Boot Status
-#         run: |
-#           boot_status=$(adb shell getprop sys.boot_completed)
-#           if [ "$boot_status" -ne 1 ]; then
-#             echo "Emulator boot failed: $boot_status"
-#             exit 1
-#           fi
-
-#       - name: Get Emulator Logs
-#         run: adb logcat -d
-
-#       # Install Appium
-#       - name: Install Appium
-#         run: npm install -g appium
-
-#       # Run Appium Server
-#       - name: Start Appium Server
-#         run: |
-#           appium &  # Run Appium server in the background
-#           sleep 10  # Wait for the server to start
-
-#       - name: Run Appium Tests
-#         run: |
-#           npm run test:e2e
-
-#       - name: Kill Emulator
-#         if: always()
-#         run: |
-#           if adb devices | grep -q emulator; then
-#             adb -s emulator-5554 emu kill || echo "Failed to kill emulator"
-#           else
-#             echo "Emulator is not running"
-#           fi
-
-#       - name: Upload APK Release
-#         if: success()
-#         uses: actions/upload-artifact@v3
-#         with:
-#           name: Apk release generated
-#           path: android/app/build/outputs/apk/release
-
-
-name: Appium Test Workflow
+name: Build APK and IPA
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
+    branches: [ "main" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        api-level: [34]
     steps:
-    # Step 1: Checkout repository
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - uses: actions/checkout@v3  # Checkout repository
 
-    # Step 2: Set up Node.js (React Native project)
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '20.x'
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.x'
+          cache: 'yarn'
 
-    # Step 3: Install dependencies (React Native, Appium client)
-    - name: Install dependencies
-      run: |
-        npm install
-        npm install -g appium
-        npm install -g appium-doctor
-        appium-doctor --android # Ensure Android setup is good
+      - name: Install dependencies
+        run: yarn
 
-    # Step 4: Set up Java and Android SDK for building the APK
-    - name: Set up Java
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: 'temurin'
+      - name: Set Up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
 
-    - name: Set up Android SDK
-      uses: android-actions/setup-android@v3
-      with:
-        api-level: 30 # Define your API level here
-        target: default
-        arch: x86_64
-        emulator-build: google_apis
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v2
+        with:
+          api-level: 34
+          build-tools: 34.0.0
+          target: 'google_apis'
+          arch: 'x86_64'
 
-    - name: Make gradlew executable
-      run: chmod +x ./android/gradlew
+      - name: Make gradlew executable
+        run: chmod +x ./android/gradlew
 
-    # Step 5: Build the APK
-    - name: Build APK
-      run: |
-        cd android
-        ./gradlew assembleDebug
-      # The APK will be in android/app/build/outputs/apk/debug/app-debug.apk
+      - name: Clean project
+        run: ./gradlew clean
+        working-directory: ./android
 
-    # Step 6: Start an Android Emulator
-    - name: Start Emulator
-      run: |
-        adb start-server
-        echo "no" | avdmanager create avd -n test -k "system-images;android-30;google_apis;x86_64"
-        emulator -avd test -no-audio -no-window &
-        adb wait-for-device
-        adb shell input keyevent 82
+      - name: Build APK
+        run: ./gradlew assembleRelease --stacktrace
+        working-directory: ./android
 
-    # Step 7: Install the APK on the emulator
-    - name: Install APK on Emulator
-      run: |
-        adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+      - name: Find APK files
+        run: find . -name "*.apk" -print
 
-    # Step 8: Run Appium tests
-    - name: Run Appium Tests
-      run: |
-        appium &
-        mvn test # Assuming TestNG is set up in your project and configured
+      - name: List APK files
+        run: ls -R android/app/build/outputs/apk/release
 
-    # Step 9: Upload test results
-    - name: Upload Test Results
-      if: always()
-      uses: actions/upload-artifact@v3
-      with:
-        name: test-results
-        path: target/test-reports
+      - name: Add Android SDK to PATH
+        run: echo "${{ steps.setup-android.outputs.android-home }}/cmdline-tools/latest/bin" >> $GITHUB_PATH
+
+      - name: Start Emulator
+        uses: ReactiveCircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: default
+          arch: x86_64
+          profile: Pixel_4
+          emulator-options: "-no-window -no-boot-anim"
+          disable-animations: true
+          emulator-boot-timeout: 900  # Increase boot timeout if needed
+
+      - name: List ADB Devices
+        run: adb devices
+
+      - name: Wait for Emulator to Start
+        run: |
+          adb wait-for-device
+          adb shell getprop sys.boot_completed  # Check boot completion status
+
+      - name: Check Emulator Boot Status
+        run: |
+          boot_status=$(adb shell getprop sys.boot_completed)
+          if [ "$boot_status" -ne 1 ]; then
+            echo "Emulator boot failed: $boot_status"
+            exit 1
+          fi
+
+      - name: Get Emulator Logs
+        run: adb logcat -d
+
+      # Install Appium
+      - name: Install Appium
+        run: npm install -g appium
+
+      # Run Appium Server
+      - name: Start Appium Server
+        run: |
+          appium &  # Run Appium server in the background
+          sleep 10  # Wait for the server to start
+
+      - name: Run Appium Tests
+        run: |
+          npm run test:e2e
+
+      - name: Kill Emulator
+        if: always()
+        run: |
+          if adb devices | grep -q emulator; then
+            adb -s emulator-5554 emu kill || echo "Failed to kill emulator"
+          else
+            echo "Emulator is not running"
+          fi
+
+      - name: Upload APK Release
+        if: success()
+        uses: actions/upload-artifact@v3
+        with:
+          name: Apk release generated
+          path: android/app/build/outputs/apk/release
+
+# name: Appium Test Workflow
+
+# on:
+#   push:
+#     branches:
+#       - main
+#   pull_request:
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#     # Step 1: Checkout repository
+#     - name: Checkout code
+#       uses: actions/checkout@v3
+
+#     # Step 2: Set up Node.js (React Native project)
+#     - name: Set up Node.js
+#       uses: actions/setup-node@v3
+#       with:
+#         node-version: '20.x'
+
+#     # Step 3: Install dependencies (React Native, Appium client)
+#     - name: Install dependencies
+#       run: |
+#         npm install
+#         npm install -g appium
+#         npm install -g appium-doctor
+#         appium-doctor --android # Ensure Android setup is good
+
+#     # Step 4: Set up Java and Android SDK for building the APK
+#     - name: Set up Java
+#       uses: actions/setup-java@v3
+#       with:
+#         java-version: '17'
+#         distribution: 'temurin'
+
+#     - name: Set up Android SDK
+#       uses: android-actions/setup-android@v3
+#       with:
+#         api-level: 30 # Define your API level here
+#         target: default
+#         arch: x86_64
+#         emulator-build: google_apis
+
+#     - name: Make gradlew executable
+#       run: chmod +x ./android/gradlew
+
+#     # Step 5: Build the APK
+#     - name: Build APK
+#       run: |
+#         cd android
+#         ./gradlew assembleDebug
+#       # The APK will be in android/app/build/outputs/apk/debug/app-debug.apk
+
+#     # Step 6: Start an Android Emulator
+#     - name: Start Emulator
+#       run: |
+#         adb start-server
+#         echo "no" | avdmanager create avd -n test -k "system-images;android-30;google_apis;x86_64"
+#         emulator -avd test -no-audio -no-window &
+#         adb wait-for-device
+#         adb shell input keyevent 82
+
+#     # Step 7: Install the APK on the emulator
+#     - name: Install APK on Emulator
+#       run: |
+#         adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+
+#     # Step 8: Run Appium tests
+#     - name: Run Appium Tests
+#       run: |
+#         appium &
+#         mvn test # Assuming TestNG is set up in your project and configured
+
+#     # Step 9: Upload test results
+#     - name: Upload Test Results
+#       if: always()
+#       uses: actions/upload-artifact@v3
+#       with:
+#         name: test-results
+#         path: target/surefire-reports # Update the path to where your test results are stored
+
+
