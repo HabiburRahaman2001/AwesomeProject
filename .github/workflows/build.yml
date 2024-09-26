@@ -205,7 +205,6 @@
 #         name: test-results
 #         path: target/surefire-reports # Update the path to where your test results are stored
 
-
 name: Android Emulator with Appium
 
 on:
@@ -216,14 +215,6 @@ on:
 jobs:
   test-apk:
     runs-on: ubuntu-latest
-
-    services:
-      # Start ngrok as a service
-      ngrok:
-        image: wernight/ngrok
-        ports:
-          - 4040:4040
-        options: --net=host
 
     steps:
     - name: Checkout code
@@ -242,6 +233,12 @@ jobs:
     - name: Install dependencies
       run: npm install
 
+    - name: Install Android system image
+      run: sdkmanager "system-images;android-30;default;x86_64"
+
+    - name: Update SDK Tools
+      run: sdkmanager --update
+
     - name: Set up Android SDK
       uses: reactivecircus/android-emulator-runner@v2
       with:
@@ -249,28 +246,10 @@ jobs:
         target: default
         arch: x86_64
         profile: Nexus_5X
-        emulator-options: '-no-window'
+        emulator-options: '-no-window -gpu swiftshader_indirect'
 
     - name: Start Android emulator
       run: |
+        adb start-server
         adb devices
         adb shell input keyevent 82
-
-    - name: Run Ngrok
-      run: |
-        curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null && \
-        echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | tee /etc/apt/sources.list.d/ngrok.list && \
-        apt update && apt install ngrok
-        ngrok authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
-        ngrok http 4723 &
-
-    - name: Get Ngrok URL
-      run: curl --silent http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url'
-
-    - name: Start Appium Server
-      run: |
-        ngrok_url=$(curl --silent http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url')
-        npx appium --base-path /wd/hub --address 127.0.0.1 --port 4723 -k --log-level error &
-
-    - name: Run WebdriverIO tests
-      run: npx wdio ./wdio.conf.js
