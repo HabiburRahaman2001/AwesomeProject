@@ -126,9 +126,18 @@ jobs:
 
       # Skip Ngrok installation as it's handled locally
 
-      # Start Appium Server (using the Ngrok URL)
-      - name: Start Appium Server
-        run: npx appium --base-path /wd/hub --address 127.0.0.1 --port 4723 -k --log-level error &
+      # Get the Ngrok URL and save it as an environment variable
+    - name: Get Ngrok URL
+      id: get_ngrok_url
+      run: |
+        ngrok_url=$(curl --silent http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url')
+        echo "NGROK_URL=$ngrok_url" >> $GITHUB_ENV
+
+# Start Appium Server with Ngrok URL
+    - name: Start Appium Server
+      run: |
+        npx appium --base-path /wd/hub --address 127.0.0.1 --port 4723 --log-level error &
+
 
       # Run WebdriverIO tests with the locally provided Ngrok URL
       - name: Run WebdriverIO tests

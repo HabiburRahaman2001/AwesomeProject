@@ -309,8 +309,8 @@
 
 exports.config = {
     /* services: ['appium'], */
-    hostname:  process.env.APPIUM_SERVER_URL || '127.0.0.1',
-    port: 4723,  // Port where Appium is running
+    hostname:  process.env.NGROK_URL  || '127.0.0.1',
+    port: 80,  // Port where Appium is running
     runner: 'local',  // WebdriverIO runner type
     specs: [
         './test/specs/App.test.js',  // Path to your test specs
