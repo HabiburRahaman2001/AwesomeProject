@@ -132,13 +132,14 @@ jobs:
           name: Apk release generated
           path: android/app/build/outputs/apk/release
 
-      # Install Ngrok
+            # Install Ngrok
       - name: Install Ngrok
         run: |
-          wget https://bin.equinox.io/c/111111/ngrok-stable-linux-amd64.zip
-          unzip ngrok-stable-linux-amd64.zip
+          wget https://bin.equinox.io/c/111111/ngrok-stable-linux-amd64.zip -O ngrok.zip || curl -o ngrok.zip https://bin.equinox.io/c/111111/ngrok-stable-linux-amd64.zip
+          unzip ngrok.zip
           sudo mv ngrok /usr/local/bin
-          rm ngrok-stable-linux-amd64.zip
+          rm ngrok.zip
+
 
       - name: Run Ngrok
         run: ngrok http 4723 &
