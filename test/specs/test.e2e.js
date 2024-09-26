@@ -15,3 +15,10 @@ describe('My Login application', () => {
     })
 })
 
+// describe('React Native App Test', () => {
+//     it('should launch the app', async () => {
+//       const el = await $('~AccessibilityID');  // Example of finding an element
+//       await el.click();
+//     });
+//   });
+  
