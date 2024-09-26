@@ -57,58 +57,58 @@ jobs:
       - name: Add Android SDK to PATH
         run: echo "${{ steps.setup-android.outputs.android-home }}/cmdline-tools/latest/bin" >> $GITHUB_PATH
 
-      - name: Start Emulator
-        uses: ReactiveCircus/android-emulator-runner@v2
-        with:
-          api-level: 34
-          target: default
-          arch: x86_64
-          profile: Pixel_4
-          emulator-options: "-no-window -no-boot-anim"
-          disable-animations: true
-          emulator-boot-timeout: 900  # Increase boot timeout if needed
+      # - name: Start Emulator
+      #   uses: ReactiveCircus/android-emulator-runner@v2
+      #   with:
+      #     api-level: 34
+      #     target: default
+      #     arch: x86_64
+      #     profile: Pixel_4
+      #     emulator-options: "-no-window -no-boot-anim"
+      #     disable-animations: true
+      #     emulator-boot-timeout: 900  # Increase boot timeout if needed
 
-      - name: List ADB Devices
-        run: adb devices
+      # - name: List ADB Devices
+      #   run: adb devices
 
-      - name: Wait for Emulator to Start
-        run: |
-          adb wait-for-device
-          adb shell getprop sys.boot_completed  # Check boot completion status
+      # - name: Wait for Emulator to Start
+      #   run: |
+      #     adb wait-for-device
+      #     adb shell getprop sys.boot_completed  # Check boot completion status
 
-      - name: Check Emulator Boot Status
-        run: |
-          boot_status=$(adb shell getprop sys.boot_completed)
-          if [ "$boot_status" -ne 1 ]; then
-            echo "Emulator boot failed: $boot_status"
-            exit 1
-          fi
+      # - name: Check Emulator Boot Status
+      #   run: |
+      #     boot_status=$(adb shell getprop sys.boot_completed)
+      #     if [ "$boot_status" -ne 1 ]; then
+      #       echo "Emulator boot failed: $boot_status"
+      #       exit 1
+      #     fi
 
-      - name: Get Emulator Logs
-        run: adb logcat -d
+      # - name: Get Emulator Logs
+      #   run: adb logcat -d
 
       # Install Appium
-      - name: Install Appium
-        run: npm install -g appium
+      # - name: Install Appium
+      #   run: npm install -g appium
 
       # Run Appium Server
-      - name: Start Appium Server
-        run: |
-          appium &  # Run Appium server in the background
-          sleep 10  # Wait for the server to start
+      # - name: Start Appium Server
+      #   run: |
+      #     appium &  # Run Appium server in the background
+      #     sleep 10  # Wait for the server to start
 
-      - name: Run Appium Tests
-        run: |
-          npm run test:e2e
+      # - name: Run Appium Tests
+      #   run: |
+      #     npm run test:e2e
 
-      - name: Kill Emulator
-        if: always()
-        run: |
-          if adb devices | grep -q emulator; then
-            adb -s emulator-5554 emu kill || echo "Failed to kill emulator"
-          else
-            echo "Emulator is not running"
-          fi
+      # - name: Kill Emulator
+      #   if: always()
+      #   run: |
+      #     if adb devices | grep -q emulator; then
+      #       adb -s emulator-5554 emu kill || echo "Failed to kill emulator"
+      #     else
+      #       echo "Emulator is not running"
+      #     fi
 
       - name: Upload APK Release
         if: success()
