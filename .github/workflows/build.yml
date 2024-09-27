@@ -127,7 +127,6 @@ jobs:
           name: Apk release generated
           path: android/app/build/outputs/apk/release
 
-      # Skip Ngrok installation as it's handled locally
 
       # Get the Ngrok URL and save it as an environment variable
       - name: Get Ngrok URL
