@@ -1,87 +1,15 @@
-name: Build APK and IPA
-
-on:
-  push:
-    branches: [ "main" ]
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        api-level: [34]
-    steps:
-      - uses: actions/checkout@v3  # Checkout repository
-
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20.x'
-          cache: 'yarn'
-
-      - name: Install dependencies
-        run: yarn
-
-      - name: Set Up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-          cache: 'gradle'
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          api-level: 34
-          build-tools: 34.0.0
-          target: 'google_apis'
-          arch: 'x86_64'
-
-      - name: Make gradlew executable
-        run: chmod +x ./android/gradlew
-
-      - name: Clean project
-        run: ./gradlew clean
-        working-directory: ./android
-
-      - name: Build APK
-        run: ./gradlew assembleRelease --stacktrace
-        working-directory: ./android
-
-      - name: Find APK files
-        run: find . -name "*.apk" -print
-
-      - name: List APK files
-        run: ls -R android/app/build/outputs/apk/release
-
-      - name: Add Android SDK to PATH
-        run: echo "${{ steps.setup-android.outputs.android-home }}/cmdline-tools/latest/bin" >> $GITHUB_PATH
-
-      - name: Upload APK Release
-        if: success()
-        uses: actions/upload-artifact@v3
-        with:
-          name: Apk release generated
-          path: android/app/build/outputs/apk/release
-
-
-
-
-
-
-# name: Build APK and Test Locally
+# name: Build APK and IPA
 
 # on:
 #   push:
 #     branches: [ "main" ]
 
 # jobs:
-#   build-and-test:
+#   build:
 #     runs-on: ubuntu-latest
 #     strategy:
 #       matrix:
 #         api-level: [34]
-
 #     steps:
 #       - uses: actions/checkout@v3  # Checkout repository
 
@@ -120,6 +48,15 @@ jobs:
 #         run: ./gradlew assembleRelease --stacktrace
 #         working-directory: ./android
 
+#       - name: Find APK files
+#         run: find . -name "*.apk" -print
+
+#       - name: List APK files
+#         run: ls -R android/app/build/outputs/apk/release
+
+#       - name: Add Android SDK to PATH
+#         run: echo "${{ steps.setup-android.outputs.android-home }}/cmdline-tools/latest/bin" >> $GITHUB_PATH
+
 #       - name: Upload APK Release
 #         if: success()
 #         uses: actions/upload-artifact@v3
@@ -128,18 +65,80 @@ jobs:
 #           path: android/app/build/outputs/apk/release
 
 
-#       # Get the Ngrok URL and save it as an environment variable
-#       - name: Get Ngrok URL
-#         id: get_ngrok_url
-#         run: |
-#           ngrok_url=$(curl --silent http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url')
-#           echo "NGROK_URL=$ngrok_url" >> $GITHUB_ENV
 
-#       # Start Appium Server with Ngrok URL
-#       - name: Start Appium Server
-#         run: |
-#           npx appium --base-path /wd/hub --address 127.0.0.1 --port 4723 --log-level error &
 
-#       # Run WebdriverIO tests with the locally provided Ngrok URL
-#       - name: Run WebdriverIO tests
-#         run: npx wdio ./wdio.conf.js
+
+
+name: Build APK and IPA
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        api-level: [34]
+
+    steps:
+      - uses: actions/checkout@v3  # Checkout repository
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.x'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn
+
+      - name: Set Up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 34
+          build-tools: 34.0.0
+          target: 'google_apis'
+          arch: 'x86_64'
+
+      - name: Make gradlew executable
+        run: chmod +x ./android/gradlew
+
+      - name: Clean project
+        run: ./gradlew clean
+        working-directory: ./android
+
+      - name: Build APK
+        run: ./gradlew assembleRelease --stacktrace
+        working-directory: ./android
+
+      - name: Upload APK Release
+        if: success()
+        uses: actions/upload-artifact@v3
+        with:
+          name: Apk release generated
+          path: android/app/build/outputs/apk/release
+
+
+      # Get the Ngrok URL and save it as an environment variable
+      - name: Get Ngrok URL
+        id: get_ngrok_url
+        run: |
+          ngrok_url=$(curl --silent http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url')
+          echo "NGROK_URL=$ngrok_url" >> $GITHUB_ENV
+
+      # Start Appium Server with Ngrok URL
+      - name: Start Appium Server
+        run: |
+          npx appium --base-path /wd/hub --address 127.0.0.1 --port 4723 --log-level error &
+
+      # Run WebdriverIO tests with the locally provided Ngrok URL
+      - name: Run WebdriverIO tests
+        run: npx wdio ./wdio.conf.js

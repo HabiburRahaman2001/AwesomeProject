@@ -309,7 +309,7 @@
 
 exports.config = {
     /* services: ['appium'], */
-    hostname:  process.env.NGROK_URL  || '127.0.0.1',
+    hostname: 'https://0451-2401-4900-1043-115c-e006-c14c-8026-f876.ngrok-free.app',
     port: 80,  // Port where Appium is running
     runner: 'local',  // WebdriverIO runner type
     specs: [
