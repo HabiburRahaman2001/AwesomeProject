@@ -309,7 +309,9 @@
 
 exports.config = {
     /* services: ['appium'], */
-    hostname: 'abcd-1234-5678.ngrok-free.app',  // Replace with your actual Ngrok URL
+    hostname: '3513-2401-4900-3faa-a9cf-398b-bc16-5139-4ce2.ngrok-free.app', 
+    protocol: 'https', // Replace with your actual Ngrok URL
+    path: '/wd/hub',
     port: 80,  // Use port 80 because Ngrok forwards to HTTP
     runner: 'local',  // WebdriverIO runner type
     specs: [
