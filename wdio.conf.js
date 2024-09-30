@@ -306,49 +306,47 @@
 
 
 
-
 exports.config = {
-    /* services: ['appium'], */
-    hostname: '3513-2401-4900-3faa-a9cf-398b-bc16-5139-4ce2.ngrok-free.app', 
-    protocol: 'https', // Replace with your actual Ngrok URL
+    hostname: '3513-2401-4900-3faa-a9cf-398b-bc16-5139-4ce2.ngrok-free.app',
+    protocol: 'https',  // Use HTTPS protocol
+    port: 443,  // Use port 443 for HTTPS or omit
+
     path: '/wd/hub',
-    port: 80,  // Use port 80 because Ngrok forwards to HTTP
-    runner: 'local',  // WebdriverIO runner type
+
+    runner: 'local',
     specs: [
-        './test/specs/App.test.js',  // Path to your test specs
+        './test/specs/App.test.js',
     ],
 
     capabilities: [
         {
             'appium:platformName': 'Android',
-            'appium:deviceName': 'emulator-5554',  // Android emulator
-            'appium:platformVersion': '11.0',  // Android OS version
-            'appium:automationName': 'UiAutomator2',  // Automation engine
-            "appium:app": "C:/AwesomeProject/android/app/build/outputs/apk/release/app-release.apk",  // APK path
-            'appium:noReset': true,  // Don't reset app state between sessions
-            'appium:ignoreHiddenApiPolicyError': true,  // Ignore API restrictions on some devices
-            'appium:newCommandTimeout': 300,  // New command timeout for Appium sessions
+            'appium:deviceName': 'emulator-5554',
+            'appium:platformVersion': '11.0',
+            'appium:automationName': 'UiAutomator2',
+            'appium:app': 'C:/AwesomeProject/android/app/build/outputs/apk/release/app-release.apk',
+            'appium:noReset': true,
+            'appium:ignoreHiddenApiPolicyError': true,
+            'appium:newCommandTimeout': 300,
         },
     ],
 
-    logLevel: 'trace',  // Verbose logging to help with debugging
-    bail: 0,  // Don't bail after first failure
-    waitforTimeout: 10000,  // Default wait time for all element commands
-    connectionRetryTimeout: 90000,  // Retry timeout for connection
-    connectionRetryCount: 3,  // Number of connection retries
+    logLevel: 'trace',
+    bail: 0,
+    waitforTimeout: 10000,
+    connectionRetryTimeout: 90000,
+    connectionRetryCount: 3,
 
-    // Framework for test runner
     framework: 'mocha',
-    reporters: ['spec'],  // Report test results in 'spec' format
+    reporters: ['spec'],
     mochaOpts: {
-        ui: 'bdd',  // BDD style (describe, it, etc.)
-        timeout: 60000,  // Test timeout for Mocha
+        ui: 'bdd',
+        timeout: 60000,
     },
 
-    // Add Appium arguments if necessary
     appium: {
         args: {
-            relaxedSecurity: true,  // Allow non-standard WebDriver commands
+            relaxedSecurity: true,
         },
     },
 };
