@@ -307,12 +307,11 @@
 
 
 exports.config = {
-    hostname: '645f-2401-4900-3faa-a9cf-24c9-30b4-d8f5-9fee.ngrok-free.app',
-    protocol: 'https',  // Use HTTPS protocol
-    port: 443,  // Use port 443 for HTTPS or omit
-
+    // services: ['appium'],
+    hostname: '19cf-2401-4900-3faa-a9cf-24c9-30b4-d8f5-9fee.ngrok-free.app',
+    port: 443,
     path: '/wd/hub',
-
+    protocol: 'https',
     runner: 'local',
     specs: [
         './test/specs/App.test.js',
