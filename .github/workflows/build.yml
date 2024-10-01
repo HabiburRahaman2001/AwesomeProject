@@ -127,18 +127,17 @@ jobs:
           path: android/app/build/outputs/apk/release
 
 
-      # # Get the Ngrok URL and save it as an environment variable
-      # - name: Get Ngrok URL
-      #   id: get_ngrok_url
-      #   run: |
-      #     ngrok_url=$(curl --silent http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url')
-      #     echo "NGROK_URL=$ngrok_url" >> $GITHUB_ENV
+      - name: Set up Ngrok Appium server
+        run: |
+          export APPIUM_SERVER_URL=https://<your-ngrok-appium-url>.ngrok.io
 
-      # # Start Appium Server with Ngrok URL
-      # - name: Start Appium Server
-      #   run: |
-      #     npx appium --base-path /wd/hub --address 127.0.0.1 --port 4723 --log-level error &
+      - name: Set up Ngrok ADB server
+        run: |
+          export ADB_SERVER_URL=tcp://0.tcp.ngrok.io:XXXXX
 
-      # Run WebdriverIO tests with the locally provided Ngrok URL
-      - name: Run WebdriverIO tests
-        run: npx wdio ./wdio.conf.js
+      - name: Run WebDriverIO tests
+        run: |
+          npx wdio ./wdio.conf.js
+        env:
+          APPIUM_SERVER: ${{ env.APPIUM_SERVER_URL }}
+          ADB_SERVER: ${{ env.ADB_SERVER_URL }}

@@ -304,12 +304,12 @@
 
 
 
-
 exports.config = {
-    hostname: 'aaf1-2401-4900-3faa-a9cf-24c9-30b4-d8f5-9fee.ngrok-free.app',
-    port: 443,
+    services: ['appium'],
+    hostname: process.env.APPIUM_SERVER || 'localhost', // Use Ngrok URL for remote access
+    port: process.env.APPIUM_PORT || 4723, // Optional: Use environment variable for port
     path: '/wd/hub',
-    protocol: 'https',
+    protocol: 'http', // Use 'http' if running Appium locally; switch to 'https' for Ngrok
     runner: 'local',
     specs: [
         './test/specs/App.test.js',
@@ -341,7 +341,6 @@ exports.config = {
         timeout: 60000,
     },
 
-    services: ['appium'],
     appium: {
         command: 'appium',
         args: {
