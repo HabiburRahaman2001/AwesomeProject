@@ -305,10 +305,8 @@
 
 
 
-
 exports.config = {
-    // services: ['appium'],
-    hostname: '19cf-2401-4900-3faa-a9cf-24c9-30b4-d8f5-9fee.ngrok-free.app',
+    hostname: 'aaf1-2401-4900-3faa-a9cf-24c9-30b4-d8f5-9fee.ngrok-free.app',
     port: 443,
     path: '/wd/hub',
     protocol: 'https',
@@ -343,8 +341,11 @@ exports.config = {
         timeout: 60000,
     },
 
+    services: ['appium'],
     appium: {
+        command: 'appium',
         args: {
+            port: 4723,
             relaxedSecurity: true,
         },
     },
