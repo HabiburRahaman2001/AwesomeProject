@@ -136,7 +136,6 @@
 
 
 
-
 name: Build Apk
 on:
   push:
@@ -168,13 +167,12 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          api-level: 34
-          build-tools: 34.0.0
-          target: 'google_apis'
-          arch: 'x86_64'
+      - name: Install Android SDK
+        run: |
+          sudo chown $USER:$USER /usr/local/lib/android/sdk -R
+          yes | sdkmanager --licenses
+          sdkmanager --update
+          sdkmanager --install 'build-tools;34.0.0' 'platform-tools' 'platforms;android-34' 'system-images;android-34;default;x86'
 
       - name: Make gradlew executable
         run: chmod +x ./android/gradlew
@@ -191,7 +189,9 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
-          script: emulator -avd test -no-window -no-audio
+          script: |
+            emulator -avd test -no-window -no-audio & # Start emulator in the background
+            adb wait-for-device # Wait for the emulator to be ready
 
       - name: Wait for emulator to fully start
         run: adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done; input keyevent 82'
