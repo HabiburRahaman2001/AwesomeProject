@@ -312,7 +312,7 @@ exports.config = {
     port: 4723, // Optional: Use environment variable for port
 
     path: '/wd/hub',
-    protocol: 'http', // Use 'http' if running Appium locally; switch to 'https' for Ngrok
+    protocol: 'https', // Use 'http' if running Appium locally; switch to 'https' for Ngrok
     runner: 'local',
     specs: [
         './test/specs/App.test.js',
