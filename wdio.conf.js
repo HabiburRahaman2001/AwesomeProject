@@ -313,13 +313,11 @@ exports.config = {
 
     // path: '/wd/hub',
     // protocol: 'https', // Use 'http' if running Appium locally; switch to 'https' for Ngrok
-        services: [], // Remove the Appium service
-        hostname: '0abb-2401-4900-1c01-6e03-481e-ed7d-6773-a8e0.ngrok-free.app', // Your Ngrok URL
-        port: 4723,
-        path: '/wd/hub',
-        protocol: 'https', // Use 'https' for Ngrok
-        // ... rest of your configuration
-    
+    services: ['appium'], // Remove the Appium service
+    // hostname: '0abb-2401-4900-1c01-6e03-481e-ed7d-6773-a8e0.ngrok-free.app', // Your Ngrok URL
+    // port: 4723,
+    path: '/wd/hub',
+    // protocol: 'https', // Use 'https' for Ngrok
     runner: 'local',
     specs: [
         './test/specs/App.test.js',

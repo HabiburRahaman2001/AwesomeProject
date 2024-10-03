@@ -69,75 +69,132 @@
 
 
 
-name: Build APK and IPA
+# name: Build APK and IPA
+# on:
+#   push:
+#     branches: [ "main" ]
+
+# jobs:
+#   build-and-test:
+#     runs-on: ubuntu-latest
+#     strategy:
+#       matrix:
+#         api-level: [34]
+
+#     steps:
+#       - uses: actions/checkout@v3  # Checkout repository
+
+#       - name: Use Node.js
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: '20.x'
+#           cache: 'yarn'
+
+#       - name: Install dependencies
+#         run: yarn
+
+#       - name: Set Up JDK
+#         uses: actions/setup-java@v3
+#         with:
+#           distribution: 'zulu'
+#           java-version: '17'
+#           cache: 'gradle'
+
+#       - name: Set up Android SDK
+#         uses: android-actions/setup-android@v3
+#         with:
+#           api-level: 34
+#           build-tools: 34.0.0
+#           target: 'google_apis'
+#           arch: 'x86_64'
+
+#       - name: Make gradlew executable
+#         run: chmod +x ./android/gradlew
+
+#       - name: Clean project
+#         run: ./gradlew clean
+#         working-directory: ./android
+
+#       - name: Build APK
+#         run: ./gradlew assembleRelease --stacktrace
+#         working-directory: ./android
+
+#       - name: Upload APK Release
+#         if: success()
+#         uses: actions/upload-artifact@v3
+#         with:
+#           name: Apk release generated
+#           path: android/app/build/outputs/apk/release
+
+
+#       - name: Set up Ngrok Appium server
+#         run: |
+#           export APPIUM_SERVER_URL=https://0abb-2401-4900-1c01-6e03-481e-ed7d-6773-a8e0.ngrok-free.app.ngrok.io
+
+#       # - name: Set up Ngrok ADB server
+#       #   run: |
+#       #     export ADB_SERVER_URL=tcp://0.tcp.ngrok.io:16215   
+
+#       - name: Run WebDriverIO tests
+#         run: |
+#           npx wdio ./wdio.conf.js
+#         env:
+#           APPIUM_SERVER: ${{ env.APPIUM_SERVER_URL }}
+#           ADB_SERVER: ${{ env.ADB_SERVER_URL }}
+
+
+
+
+
+
+
+
+
+
+name: Run Appium Tests
+
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+  pull_request:
 
 jobs:
-  build-and-test:
+  test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        api-level: [34]
+
+    services:
+      appium:
+        image: appium/appium
+        ports:
+          - 4723:4723
+        options: >
+          --entrypoint="appium"
+          -d
+
+      ngrok:
+        image: wernight/ngrok
+        ports:
+          - 4040:4040
+        options: >
+          --entrypoint="/bin/sh"
+          -d
+          -c "ngrok http 4723 --host-header=rewrite"
 
     steps:
-      - uses: actions/checkout@v3  # Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Use Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20.x'
-          cache: 'yarn'
+          node-version: '20'
 
       - name: Install dependencies
-        run: yarn
+        run: npm install
 
-      - name: Set Up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-          cache: 'gradle'
+      - name: Wait for Ngrok to be ready
+        run: sleep 30 # Adjust this duration if needed
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          api-level: 34
-          build-tools: 34.0.0
-          target: 'google_apis'
-          arch: 'x86_64'
-
-      - name: Make gradlew executable
-        run: chmod +x ./android/gradlew
-
-      - name: Clean project
-        run: ./gradlew clean
-        working-directory: ./android
-
-      - name: Build APK
-        run: ./gradlew assembleRelease --stacktrace
-        working-directory: ./android
-
-      - name: Upload APK Release
-        if: success()
-        uses: actions/upload-artifact@v3
-        with:
-          name: Apk release generated
-          path: android/app/build/outputs/apk/release
-
-
-      - name: Set up Ngrok Appium server
-        run: |
-          export APPIUM_SERVER_URL=https://0abb-2401-4900-1c01-6e03-481e-ed7d-6773-a8e0.ngrok-free.app.ngrok.io
-
-      # - name: Set up Ngrok ADB server
-      #   run: |
-      #     export ADB_SERVER_URL=tcp://0.tcp.ngrok.io:16215   
-
-      - name: Run WebDriverIO tests
-        run: |
-          npx wdio ./wdio.conf.js
-        env:
-          APPIUM_SERVER: ${{ env.APPIUM_SERVER_URL }}
-          ADB_SERVER: ${{ env.ADB_SERVER_URL }}
+      - name: Run tests
+        run: npx wdio ./wdio.config.js
