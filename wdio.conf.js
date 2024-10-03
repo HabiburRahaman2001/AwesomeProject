@@ -305,7 +305,7 @@
 
 
 exports.config = {
-    // services: ['appium'],
+    services: ['appium'],
     hostname: process.env.APPIUM_SERVER || 'localhost', // Use Ngrok URL for remote access
     port: process.env.APPIUM_PORT || 4723, // Optional: Use environment variable for port
     path: '/wd/hub',
