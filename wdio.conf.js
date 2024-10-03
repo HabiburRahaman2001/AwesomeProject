@@ -305,14 +305,21 @@
 
 
 exports.config = {
-    services: ['appium'],
-    // hostname: process.env.APPIUM_SERVER || 'localhost', // Use Ngrok URL for remote access
-    hostname: '0abb-2401-4900-1c01-6e03-481e-ed7d-6773-a8e0.ngrok-free.app', // Use Ngrok URL for remote access
-    // port: process.env.APPIUM_PORT || 4723, // Optional: Use environment variable for port
-    port: 4723, // Optional: Use environment variable for port
+    // services: ['appium'],
+    // // hostname: process.env.APPIUM_SERVER || 'localhost', // Use Ngrok URL for remote access
+    // hostname: '0abb-2401-4900-1c01-6e03-481e-ed7d-6773-a8e0.ngrok-free.app', // Use Ngrok URL for remote access
+    // // port: process.env.APPIUM_PORT || 4723, // Optional: Use environment variable for port
+    // port: 4723, // Optional: Use environment variable for port
 
-    path: '/wd/hub',
-    protocol: 'https', // Use 'http' if running Appium locally; switch to 'https' for Ngrok
+    // path: '/wd/hub',
+    // protocol: 'https', // Use 'http' if running Appium locally; switch to 'https' for Ngrok
+        services: [], // Remove the Appium service
+        hostname: '0abb-2401-4900-1c01-6e03-481e-ed7d-6773-a8e0.ngrok-free.app', // Your Ngrok URL
+        port: 4723,
+        path: '/wd/hub',
+        protocol: 'https', // Use 'https' for Ngrok
+        // ... rest of your configuration
+    
     runner: 'local',
     specs: [
         './test/specs/App.test.js',
