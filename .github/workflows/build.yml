@@ -178,7 +178,6 @@ jobs:
           - 4040:4040
         options: >
           --entrypoint="/bin/sh"
-          -d
           -c "ngrok http 4723 --host-header=rewrite"
 
     steps:
