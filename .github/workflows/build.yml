@@ -170,7 +170,6 @@ jobs:
           - 4723:4723
         options: >
           --entrypoint="appium"
-          -d
 
       ngrok:
         image: wernight/ngrok
