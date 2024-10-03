@@ -304,24 +304,79 @@
 
 
 
-exports.config = {
-    // services: ['appium'],
-    // // hostname: process.env.APPIUM_SERVER || 'localhost', // Use Ngrok URL for remote access
-    // hostname: '0abb-2401-4900-1c01-6e03-481e-ed7d-6773-a8e0.ngrok-free.app', // Use Ngrok URL for remote access
-    // // port: process.env.APPIUM_PORT || 4723, // Optional: Use environment variable for port
-    // port: 4723, // Optional: Use environment variable for port
+// exports.config = {
+//     // services: ['appium'],
+//     // // hostname: process.env.APPIUM_SERVER || 'localhost', // Use Ngrok URL for remote access
+//     // hostname: '0abb-2401-4900-1c01-6e03-481e-ed7d-6773-a8e0.ngrok-free.app', // Use Ngrok URL for remote access
+//     // // port: process.env.APPIUM_PORT || 4723, // Optional: Use environment variable for port
+//     // port: 4723, // Optional: Use environment variable for port
 
-    // path: '/wd/hub',
-    // protocol: 'https', // Use 'http' if running Appium locally; switch to 'https' for Ngrok
-    services: ['appium'], // Remove the Appium service
-    // hostname: '0abb-2401-4900-1c01-6e03-481e-ed7d-6773-a8e0.ngrok-free.app', // Your Ngrok URL
-    // port: 4723,
+//     // path: '/wd/hub',
+//     // protocol: 'https', // Use 'http' if running Appium locally; switch to 'https' for Ngrok
+//     services: ['appium'], // Remove the Appium service
+//     // hostname: '0abb-2401-4900-1c01-6e03-481e-ed7d-6773-a8e0.ngrok-free.app', // Your Ngrok URL
+//     // port: 4723,
+//     path: '/wd/hub',
+//     // protocol: 'https', // Use 'https' for Ngrok
+//     runner: 'local',
+//     specs: [
+//         './test/specs/App.test.js',
+//     ],
+
+//     capabilities: [
+//         {
+//             'appium:platformName': 'Android',
+//             'appium:deviceName': 'emulator-5554',
+//             'appium:platformVersion': '11.0',
+//             'appium:automationName': 'UiAutomator2',
+//             'appium:app': 'C:/AwesomeProject/android/app/build/outputs/apk/release/app-release.apk',
+//             'appium:noReset': true,
+//             'appium:ignoreHiddenApiPolicyError': true,
+//             'appium:newCommandTimeout': 300,
+//         },
+//     ],
+
+//     logLevel: 'trace',
+//     bail: 0,
+//     waitforTimeout: 10000,
+//     connectionRetryTimeout: 90000,
+//     connectionRetryCount: 3,
+
+//     framework: 'mocha',
+//     reporters: ['spec'],
+//     mochaOpts: {
+//         ui: 'bdd',
+//         timeout: 60000,
+//     },
+
+//     appium: {
+//         command: 'appium',
+//         args: {
+//             port: 4723,
+//             relaxedSecurity: true,
+//         },
+//     },
+// };
+
+
+
+
+
+
+
+
+
+
+const isLocal = process.env.RUN_ENV === 'local';
+
+exports.config = {
+    services: ['appium'],
+    hostname: isLocal ? '127.0.0.1' : '5686-2401-4900-1c01-6e03-481e-ed7d-6773-a8e0.ngrok-free.app',
+    port: isLocal ? 4723 : 443,
     path: '/wd/hub',
-    // protocol: 'https', // Use 'https' for Ngrok
-    runner: 'local',
-    specs: [
-        './test/specs/App.test.js',
-    ],
+    protocol: isLocal ? 'http' : 'https',
+
+    specs: ['./test/specs/App.test.js'],
 
     capabilities: [
         {
@@ -354,6 +409,7 @@ exports.config = {
         args: {
             port: 4723,
             relaxedSecurity: true,
+            log: './appium-server.log', // Log path
         },
     },
 };
