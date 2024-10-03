@@ -131,9 +131,9 @@ jobs:
         run: |
           export APPIUM_SERVER_URL=https://0abb-2401-4900-1c01-6e03-481e-ed7d-6773-a8e0.ngrok-free.app.ngrok.io
 
-      - name: Set up Ngrok ADB server
-        run: |
-          export ADB_SERVER_URL=tcp://0.tcp.ngrok.io:16215   
+      # - name: Set up Ngrok ADB server
+      #   run: |
+      #     export ADB_SERVER_URL=tcp://0.tcp.ngrok.io:16215   
 
       - name: Run WebDriverIO tests
         run: |
