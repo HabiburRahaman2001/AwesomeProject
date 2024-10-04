@@ -69,73 +69,6 @@
 
 
 
-name: Build Apk
-on:
-  push:
-    branches: [ "main" ]
-
-jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        api-level: [34]
-
-    steps:
-      - uses: actions/checkout@v3  # Checkout repository
-
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20.x'
-          cache: 'yarn'
-
-      - name: Install dependencies
-        run: yarn
-
-      - name: Set Up JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-          cache: 'gradle'
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          api-level: 34
-          build-tools: 34.0.0
-          target: 'google_apis'
-          arch: 'x86_64'
-
-      - name: Make gradlew executable
-        run: chmod +x ./android/gradlew
-
-      - name: Clean project
-        run: ./gradlew clean
-        working-directory: ./android
-
-      - name: Build APK
-        run: ./gradlew assembleRelease --stacktrace
-        working-directory: ./android
-
-      - name: Upload APK Release
-        if: success()
-        uses: actions/upload-artifact@v3
-        with:
-          name: Apk release generated
-          path: android/app/build/outputs/apk/release   
-
-      - name: Run WebDriverIO tests
-        env:
-          RUN_ENV: remote # This ensures it uses the global config
-        run: |
-          npx wdio ./wdio.conf.js
-        
-
-
-
-
 # name: Build Apk
 # on:
 #   push:
@@ -167,16 +100,6 @@ jobs:
 #           java-version: '17'
 #           cache: 'gradle'
 
-#       - name: Install Android SDK
-#         run: |
-#           sudo chown $USER:$USER /usr/local/lib/android/sdk -R
-#           yes | sdkmanager --licenses
-#           sdkmanager --update
-#           sdkmanager --install 'build-tools;34.0.0' 'platform-tools' 'platforms;android-34' 'system-images;android-34;default;x86'
-
-#       - name: Make gradlew executable
-#         run: chmod +x ./android/gradlew
-
 #       - name: Clean project
 #         run: ./gradlew clean
 #         working-directory: ./android
@@ -184,17 +107,6 @@ jobs:
 #       - name: Build APK
 #         run: ./gradlew assembleRelease --stacktrace
 #         working-directory: ./android
-
-#       - name: Start Android Emulator
-#         uses: reactivecircus/android-emulator-runner@v2
-#         with:
-#           api-level: 34
-#           script: |
-#             emulator -avd test -no-window -no-audio & # Start emulator in the background
-#             adb wait-for-device # Wait for the emulator to be ready
-
-#       - name: Wait for emulator to fully start
-#         run: adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done; input keyevent 82'
 
 #       - name: Upload APK Release
 #         if: success()
@@ -208,3 +120,66 @@ jobs:
 #           RUN_ENV: remote # This ensures it uses the global config
 #         run: |
 #           npx wdio ./wdio.conf.js
+        
+
+
+
+
+name: Build Apk
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        api-level: [34]
+
+    steps:
+      - uses: actions/checkout@v3  # Checkout repository
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.x'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn
+
+      - name: Set Up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+          cache: 'gradle'
+
+      
+
+      - name: Make gradlew executable
+        run: chmod +x ./android/gradlew
+
+      - name: Clean project
+        run: ./gradlew clean
+        working-directory: ./android
+
+      - name: Build APK
+        run: ./gradlew assembleRelease --stacktrace
+        working-directory: ./android
+
+      
+
+      - name: Upload APK Release
+        if: success()
+        uses: actions/upload-artifact@v3
+        with:
+          name: Apk release generated
+          path: android/app/build/outputs/apk/release   
+
+      - name: Run WebDriverIO tests
+        # env:
+        #   RUN_ENV: remote # This ensures it uses the global config
+        run: |
+          npx wdio ./wdio.conf.js

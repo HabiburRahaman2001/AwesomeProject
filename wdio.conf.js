@@ -366,16 +366,78 @@
 
 
 
+// // Dynamic setting for local and remote environments
+// let isLocal = process.env.RUN_ENV === 'local' || true; // Default to 'local' if not set
 
-const isLocal = process.env.RUN_ENV === 'local';
+// exports.config = {
+//     // Uncomment Appium service if you're not manually running Appium
+//     // services: ['appium'], 
+//     // Dynamic hostname and port based on local or remote (Ngrok) environment
+//     hostname: isLocal ? '127.0.0.1' : '5686-2401-4900-1c01-6e03-481e-ed7d-6773-a8e0.ngrok-free.app',
+//     port: isLocal ? 4723 : 443,
+
+//     // Update path for Appium v2 (if you're using Appium v2)
+//     path: isLocal ? '/wd/hub' : '/',
+
+//     protocol: isLocal ? 'http' : 'https',
+
+//     // Specify the test specs
+//     specs: ['./test/specs/App.test.js'],
+
+//     capabilities: [
+//         {
+//             'appium:platformName': 'Android',
+//             'appium:deviceName': 'emulator-5554',
+//             'appium:platformVersion': '11.0',
+//             'appium:automationName': 'UiAutomator2',
+//             'appium:app': 'C:/AwesomeProject/android/app/build/outputs/apk/release/app-release.apk',
+//             'appium:noReset': true,
+//             'appium:ignoreHiddenApiPolicyError': true,
+//             'appium:newCommandTimeout': 300,
+//         },
+//     ],
+
+//     // Logging and timeout settings
+//     logLevel: 'debug', // or 'trace' for more detailed logs
+//     bail: 0,
+//     waitforTimeout: 10000,
+//     connectionRetryTimeout: 90000,
+//     connectionRetryCount: 3,
+
+//     // Test framework configuration
+//     framework: 'mocha',
+//     reporters: ['spec'],
+//     mochaOpts: {
+//         ui: 'bdd',
+//         timeout: 60000,
+//     },
+
+//     // Appium server arguments (if manually starting Appium)
+//     // appium: {
+//     //     command: 'appium',
+//     //     args: {
+//     //         port: 4723, // Port number for Appium
+//     //         relaxedSecurity: true,
+//     //         log: './appium-server.log', // Log path for Appium server
+//     //     },
+//     // },
+// };
+
+
+
+
 
 exports.config = {
-    services: ['appium'],
-    hostname: isLocal ? '127.0.0.1' : '5686-2401-4900-1c01-6e03-481e-ed7d-6773-a8e0.ngrok-free.app',
-    port: isLocal ? 4723 : 443,
-    path: '/wd/hub',
-    protocol: isLocal ? 'http' : 'https',
+    // hostname: '127.0.0.1',
+    hostname: 'bbb2-2405-201-8010-c0fa-9829-b57-1d18-bbd1.ngrok-free.app',
+    // port: 4723,
+    port: 443,
 
+    path: '/',  // Appium v2 uses '/' instead of '/wd/hub'
+
+    // protocol: 'http',
+    protocol: 'https',
+    
     specs: ['./test/specs/App.test.js'],
 
     capabilities: [
@@ -391,7 +453,7 @@ exports.config = {
         },
     ],
 
-    logLevel: 'trace',
+    logLevel: 'debug',
     bail: 0,
     waitforTimeout: 10000,
     connectionRetryTimeout: 90000,
@@ -402,14 +464,5 @@ exports.config = {
     mochaOpts: {
         ui: 'bdd',
         timeout: 60000,
-    },
-
-    appium: {
-        command: 'appium',
-        args: {
-            port: 4723,
-            relaxedSecurity: true,
-            log: './appium-server.log', // Log path
-        },
     },
 };
