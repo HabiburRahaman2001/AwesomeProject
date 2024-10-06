@@ -119,6 +119,10 @@ jobs:
         if: success()  # Only set if the build was successful
         run: echo "APK_PATH=android/app/build/outputs/apk/release/app-release.apk" >> $GITHUB_ENV
 
+      - name: Store APK in project path
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk ./app-release.apk
+
       - name: Run WebDriverIO tests
         if: success()  # Only run tests if the APK was built and uploaded successfully
         run: npx wdio ./wdio.conf.js
