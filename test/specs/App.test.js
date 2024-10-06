@@ -14,7 +14,7 @@ describe('Simple App testing', () => {
 
     await $("~loginstatus").waitForDisplayed({ timeout: 11000 });
     const status = await $("~loginstatus").getText();
-    expect(status).to.equal('success');
+    expect(status).to.equal('SUCCESS');
   });
 
   it('Login test: invalid case', async () => {
@@ -25,6 +25,6 @@ describe('Simple App testing', () => {
 
     await $("~loginstatus").waitForDisplayed({ timeout: 11000 });
     const status = await $("~loginstatus").getText();
-    expect(status).to.equal('fail');
+    expect(status).to.equal('FAIL');
   });
 });

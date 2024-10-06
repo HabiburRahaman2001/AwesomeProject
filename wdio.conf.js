@@ -45,7 +45,9 @@
 
 
 
-const apkPath = process.env.APK_PATH || 'C:/AwesomeProject/android/app/build/outputs/apk/release/app-release.apk';
+// const apkPath = process.env.APK_PATH || 'C:/AwesomeProject/android/app/build/outputs/apk/release/app-release.apk';
+const apkPath = process.env.APK_PATH;
+
 
 exports.config = {
     hostname: 'cbd1-2401-4900-3a01-b7f9-3032-65bd-7384-2da0.ngrok-free.app',
