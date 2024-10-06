@@ -64,7 +64,6 @@
 
 
 
-
 name: Build and Test APK
 
 on:
@@ -119,13 +118,18 @@ jobs:
       - name: Download APK Artifact
         uses: actions/download-artifact@v3
         with:
-          name: Apk-release  # Same name as the uploaded artifact
-          path: ./apk         # Download to ./apk directory
+          name: Apk-release
+          path: ./apk
+
+      # Log the APK path for confirmation
+      - name: Verify APK Download
+        run: ls -lh ./apk  # This lists the files in the directory to confirm the APK is there
 
       # Run WebDriverIO tests using the downloaded APK
       - name: Run WebDriverIO tests
         env:
+          APK_PATH: ./apk/app-release.apk  # Path to the downloaded APK
           RUN_ENV: remote
         run: |
-          APK_PATH=./apk/app-release.apk  # Path to the downloaded APK
+          echo "Using APK: $APK_PATH"  # Log the APK being used for testing
           npx wdio ./wdio.conf.js
