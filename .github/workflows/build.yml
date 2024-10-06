@@ -65,6 +65,76 @@
 
 
 
+# name: Build Apk
+# on:
+#   push:
+#     branches: [ "main" ]
+
+# jobs:
+#   build-and-test:
+#     runs-on: ubuntu-latest
+#     strategy:
+#       matrix:
+#         api-level: [34]
+
+#     steps:
+#       - uses: actions/checkout@v3  # Checkout repository
+
+#       - name: Use Node.js
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: '20.x'
+#           cache: 'yarn'
+
+#       - name: Install dependencies
+#         run: yarn
+
+#       - name: Set Up JDK
+#         uses: actions/setup-java@v3
+#         with:
+#           distribution: 'zulu'
+#           java-version: '17'
+#           cache: 'gradle'
+
+#       - name: Make gradlew executable
+#         run: chmod +x ./android/gradlew
+
+#       - name: Clean project
+#         run: ./gradlew clean
+#         working-directory: ./android
+
+#       - name: Build APK
+#         id: build_apk
+#         run: ./gradlew assembleRelease --stacktrace
+#         working-directory: ./android
+
+#       - name: Upload APK Release
+#         if: success()
+#         uses: actions/upload-artifact@v3
+#         with:
+#           name: Apk release generated
+#           path: android/app/build/outputs/apk/release/app-release.apk   
+
+#       - name: Set APK path environment variable
+#         if: success()  # Only set if the build was successful
+#         run: echo "APK_PATH=android/app/build/outputs/apk/release/app-release.apk" >> $GITHUB_ENV
+
+#       - name: Run WebDriverIO tests
+#         if: success()  # Only run tests if the APK was built and uploaded successfully
+#         run: npx wdio ./wdio.conf.js
+
+
+
+
+
+
+
+
+
+
+
+
+
 name: Build Apk
 on:
   push:
@@ -104,20 +174,25 @@ jobs:
         working-directory: ./android
 
       - name: Build APK
-        id: build_apk
         run: ./gradlew assembleRelease --stacktrace
         working-directory: ./android
+
+      - name: Rename APK with version name
+        run: |
+          VERSION_NAME=$(grep versionName ./android/app/build.gradle | awk '{print $2}' | tr -d '"')
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          mv ./android/app/build/outputs/apk/release/app-release.apk ./android/app/build/outputs/apk/release/app-release-${VERSION_NAME}-${TIMESTAMP}.apk
 
       - name: Upload APK Release
         if: success()
         uses: actions/upload-artifact@v3
         with:
           name: Apk release generated
-          path: android/app/build/outputs/apk/release/app-release.apk   
+          path: android/app/build/outputs/apk/release/app-release-*.apk
 
       - name: Set APK path environment variable
         if: success()  # Only set if the build was successful
-        run: echo "APK_PATH=android/app/build/outputs/apk/release/app-release.apk" >> $GITHUB_ENV
+        run: echo "APK_PATH=android/app/build/outputs/apk/release/app-release-${{ github.run_id }}.apk" >> $GITHUB_ENV
 
       - name: Run WebDriverIO tests
         if: success()  # Only run tests if the APK was built and uploaded successfully
