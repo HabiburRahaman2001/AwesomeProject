@@ -93,7 +93,7 @@ const Slide = () => {
   };
 
   const login = () => {
-    if (username === 'codemagic' && password === 'nevercode') {
+    if (username === 'code' && password === 'code') {
       setIsLogined(true);
     } else {
       setIsLogined(false);
@@ -176,7 +176,7 @@ const LOCAL_STYLES = StyleSheet.create({
     backgroundColor: "green"
   },
   input: {
-    color: 'black',
+    color: 'red',
     width: '100%'
   }
 });
