@@ -7,8 +7,8 @@ describe('Simple App testing', () => {
   });
 
   it('Login test: valid case', async () => {
-    await $('~username').setValue("codemagic");
-    await $('~password').setValue("nevercode");
+    await $('~username').setValue("code");
+    await $('~password').setValue("code");
 
     await $("~login").click();
 
