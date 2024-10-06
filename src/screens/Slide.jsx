@@ -120,13 +120,13 @@ const Slide = () => {
         onChangeText={inputChangeHandler}
         secureTextEntry={true}
       />
-      <Text accessibilityLabel="loginstatus">{isLogined ? "success" : "fail"}</Text>
+      <Text accessibilityLabel="loginstatus">{isLogined ? "SUCCESS" : "FAIL"}</Text>
       <TouchableHighlight
         style={LOCAL_STYLES.buttonContainer}
         accessibilityLabel="login"
         onPress={login}
       >
-        <Text style={{ color: 'white' }}>Login</Text>
+        <Text style={{ color: 'white' }}>LOGIN</Text>
       </TouchableHighlight>
     </View>
   );
@@ -173,7 +173,7 @@ const LOCAL_STYLES = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
     borderRadius: 20,
-    backgroundColor: "#00b5ec"
+    backgroundColor: "green"
   },
   input: {
     color: 'black',
