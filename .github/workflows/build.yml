@@ -1,73 +1,3 @@
-# name: Build APK and IPA
-
-# on:
-#   push:
-#     branches: [ "main" ]
-
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
-#     strategy:
-#       matrix:
-#         api-level: [34]
-#     steps:
-#       - uses: actions/checkout@v3  # Checkout repository
-
-#       - name: Use Node.js
-#         uses: actions/setup-node@v3
-#         with:
-#           node-version: '20.x'
-#           cache: 'yarn'
-
-#       - name: Install dependencies
-#         run: yarn
-
-#       - name: Set Up JDK
-#         uses: actions/setup-java@v3
-#         with:
-#           distribution: 'zulu'
-#           java-version: '17'
-#           cache: 'gradle'
-
-#       - name: Set up Android SDK
-#         uses: android-actions/setup-android@v3
-#         with:
-#           api-level: 34
-#           build-tools: 34.0.0
-#           target: 'google_apis'
-#           arch: 'x86_64'
-
-#       - name: Make gradlew executable
-#         run: chmod +x ./android/gradlew
-
-#       - name: Clean project
-#         run: ./gradlew clean
-#         working-directory: ./android
-
-#       - name: Build APK
-#         run: ./gradlew assembleRelease --stacktrace
-#         working-directory: ./android
-
-#       - name: Find APK files
-#         run: find . -name "*.apk" -print
-
-#       - name: List APK files
-#         run: ls -R android/app/build/outputs/apk/release
-
-#       - name: Add Android SDK to PATH
-#         run: echo "${{ steps.setup-android.outputs.android-home }}/cmdline-tools/latest/bin" >> $GITHUB_PATH
-
-#       - name: Upload APK Release
-#         if: success()
-#         uses: actions/upload-artifact@v3
-#         with:
-#           name: Apk release generated
-#           path: android/app/build/outputs/apk/release
-
-
-
-
-
 
 # name: Build Apk
 # on:
@@ -100,6 +30,11 @@
 #           java-version: '17'
 #           cache: 'gradle'
 
+      
+
+#       - name: Make gradlew executable
+#         run: chmod +x ./android/gradlew
+
 #       - name: Clean project
 #         run: ./gradlew clean
 #         working-directory: ./android
@@ -107,6 +42,8 @@
 #       - name: Build APK
 #         run: ./gradlew assembleRelease --stacktrace
 #         working-directory: ./android
+
+      
 
 #       - name: Upload APK Release
 #         if: success()
@@ -116,16 +53,20 @@
 #           path: android/app/build/outputs/apk/release   
 
 #       - name: Run WebDriverIO tests
-#         env:
-#           RUN_ENV: remote # This ensures it uses the global config
+#         # env:
+#         #   RUN_ENV: remote # This ensures it uses the global config
 #         run: |
 #           npx wdio ./wdio.conf.js
-        
 
 
 
 
-name: Build Apk
+
+
+
+
+name: Build and Test APK
+
 on:
   push:
     branches: [ "main" ]
@@ -156,8 +97,6 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
-      
-
       - name: Make gradlew executable
         run: chmod +x ./android/gradlew
 
@@ -169,17 +108,24 @@ jobs:
         run: ./gradlew assembleRelease --stacktrace
         working-directory: ./android
 
-      
-
       - name: Upload APK Release
         if: success()
         uses: actions/upload-artifact@v3
         with:
-          name: Apk release generated
-          path: android/app/build/outputs/apk/release   
+          name: Apk-release
+          path: android/app/build/outputs/apk/release/app-release.apk
 
+      # Download the APK for testing
+      - name: Download APK Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: Apk-release  # Same name as the uploaded artifact
+          path: ./apk         # Download to ./apk directory
+
+      # Run WebDriverIO tests using the downloaded APK
       - name: Run WebDriverIO tests
-        # env:
-        #   RUN_ENV: remote # This ensures it uses the global config
+        env:
+          RUN_ENV: remote
         run: |
+          APK_PATH=./apk/app-release.apk  # Path to the downloaded APK
           npx wdio ./wdio.conf.js
