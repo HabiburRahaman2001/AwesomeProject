@@ -1,4 +1,3 @@
-const apkPath = process.env.APK_PATH;
 
 exports.config = {
     // hostname: '127.0.0.1',
@@ -19,7 +18,7 @@ exports.config = {
             'appium:deviceName': 'emulator-5554',
             'appium:platformVersion': '11.0',
             'appium:automationName': 'UiAutomator2',
-            'appium:app': apkPath,
+            'appium:app': 'C:/AwesomeProject/android/app/build/outputs/apk/release/app-release.apk',
             'appium:noReset': true,
             'appium:ignoreHiddenApiPolicyError': true,
             'appium:newCommandTimeout': 300,

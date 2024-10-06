@@ -1,71 +1,5 @@
 
-# name: Build Apk
-# on:
-#   push:
-#     branches: [ "main" ]
-
-# jobs:
-#   build-and-test:
-#     runs-on: ubuntu-latest
-#     strategy:
-#       matrix:
-#         api-level: [34]
-
-#     steps:
-#       - uses: actions/checkout@v3  # Checkout repository
-
-#       - name: Use Node.js
-#         uses: actions/setup-node@v3
-#         with:
-#           node-version: '20.x'
-#           cache: 'yarn'
-
-#       - name: Install dependencies
-#         run: yarn
-
-#       - name: Set Up JDK
-#         uses: actions/setup-java@v3
-#         with:
-#           distribution: 'zulu'
-#           java-version: '17'
-#           cache: 'gradle'
-
-      
-
-#       - name: Make gradlew executable
-#         run: chmod +x ./android/gradlew
-
-#       - name: Clean project
-#         run: ./gradlew clean
-#         working-directory: ./android
-
-#       - name: Build APK
-#         run: ./gradlew assembleRelease --stacktrace
-#         working-directory: ./android
-
-      
-
-#       - name: Upload APK Release
-#         if: success()
-#         uses: actions/upload-artifact@v3
-#         with:
-#           name: Apk release generated
-#           path: android/app/build/outputs/apk/release   
-
-#       - name: Run WebDriverIO tests
-#         # env:
-#         #   RUN_ENV: remote # This ensures it uses the global config
-#         run: |
-#           npx wdio ./wdio.conf.js
-
-
-
-
-
-
-
-name: Build and Test APK
-
+name: Build Apk
 on:
   push:
     branches: [ "main" ]
@@ -96,6 +30,8 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
+      
+
       - name: Make gradlew executable
         run: chmod +x ./android/gradlew
 
@@ -107,28 +43,92 @@ jobs:
         run: ./gradlew assembleRelease --stacktrace
         working-directory: ./android
 
+      
+
       - name: Upload APK Release
         if: success()
         uses: actions/upload-artifact@v3
         with:
-          name: Apk-release
-          path: android/app/build/outputs/apk/release/app-release.apk
+          name: Apk release generated
+          path: android/app/build/outputs/apk/release   
 
-      # Download the APK for testing
-      - name: Download APK Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: Apk-release
-          path: ./apk
-
-      # # Log the APK path for confirmation
-      # - name: Verify APK Download
-      #   run: ls -lh ./apk  # This lists the files in the directory to confirm the APK is there
-
-      # Run WebDriverIO tests using the downloaded APK
       - name: Run WebDriverIO tests
-        env:
-          APK_PATH: ./apk/app-release.apk  # Path to the downloaded APK
-          RUN_ENV: remote
+        # env:
+        #   RUN_ENV: remote # This ensures it uses the global config
         run: |
           npx wdio ./wdio.conf.js
+
+
+
+
+
+
+
+# name: Build and Test APK
+
+# on:
+#   push:
+#     branches: [ "main" ]
+
+# jobs:
+#   build-and-test:
+#     runs-on: ubuntu-latest
+#     strategy:
+#       matrix:
+#         api-level: [34]
+
+#     steps:
+#       - uses: actions/checkout@v3  # Checkout repository
+
+#       - name: Use Node.js
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: '20.x'
+#           cache: 'yarn'
+
+#       - name: Install dependencies
+#         run: yarn
+
+#       - name: Set Up JDK
+#         uses: actions/setup-java@v3
+#         with:
+#           distribution: 'zulu'
+#           java-version: '17'
+#           cache: 'gradle'
+
+#       - name: Make gradlew executable
+#         run: chmod +x ./android/gradlew
+
+#       - name: Clean project
+#         run: ./gradlew clean
+#         working-directory: ./android
+
+#       - name: Build APK
+#         run: ./gradlew assembleRelease --stacktrace
+#         working-directory: ./android
+
+#       - name: Upload APK Release
+#         if: success()
+#         uses: actions/upload-artifact@v3
+#         with:
+#           name: Apk-release
+#           path: android/app/build/outputs/apk/release/app-release.apk
+
+#       # Download the APK for testing
+#       - name: Download APK Artifact
+#         uses: actions/download-artifact@v3
+#         with:
+#           name: Apk-release
+#           path: ./apk
+
+#       # # Log the APK path for confirmation
+#       # - name: Verify APK Download
+#       #   run: ls -lh ./apk  # This lists the files in the directory to confirm the APK is there
+
+#       # Run WebDriverIO tests using the downloaded APK
+#       - name: Run WebDriverIO tests
+#         env:
+#           APK_PATH: ./apk/app-release.apk  # Path to the downloaded APK
+#           RUN_ENV: remote
+#         run: |
+#           npx wdio ./wdio.conf.js
