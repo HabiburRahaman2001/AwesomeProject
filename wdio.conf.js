@@ -55,6 +55,7 @@
 
 
 
+console.log('APK Pathhhhhhhhhhhhhhhh:', process.env.APK_PATH);
 
 exports.config = {
     // hostname: '127.0.0.1',
