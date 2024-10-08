@@ -59,7 +59,7 @@ console.log('APK Pathhhhhhhhhhhhhhhh:', process.env.APK_PATH);
 
 exports.config = {
     // hostname: '127.0.0.1',
-    hostname: 'cbd1-2401-4900-3a01-b7f9-3032-65bd-7384-2da0.ngrok-free.app',
+    hostname: '0638-2401-4900-3faa-a82f-7db8-23bd-19e7-2a48.ngrok-free.app',
     // port: 4723,
     port: 443,
 
