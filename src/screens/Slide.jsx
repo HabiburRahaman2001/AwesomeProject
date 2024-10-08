@@ -1,88 +1,11 @@
-// import { useNavigation } from '@react-navigation/native';
-// import React, { useEffect, useRef } from 'react';
-// import { Animated, StyleSheet, Text, View, TouchableOpacity, Dimensions } from 'react-native';
-
-// const Slide = () => {
-//   const translateY = useRef(new Animated.Value(0)).current;
-//   const navigation = useNavigation();
-//   const screenHeight = Dimensions.get('window').height;
-
-//   useEffect(() => {
-//     const startAnimation = () => {
-//       Animated.loop(
-//         Animated.sequence([
-//           Animated.timing(translateY, {
-//             toValue: screenHeight - 100,
-//             duration:15000,
-//             useNativeDriver: true,
-//           }),
-//           Animated.timing(translateY, {
-//             toValue: 0,
-//             duration: 15000,
-//             useNativeDriver: true,
-//           }),
-//         ])
-//       ).start();
-//     };
-
-//     startAnimation();
-//   }, [translateY, screenHeight]);
-
-//   const handlePress = () => {
-//     navigation.navigate('Splash');
-//   };
-
-//   return (
-//     <View style={styles.container}>
-//       <Animated.View style={[styles.slide, { transform: [{ translateY }] }]}>
-//         <TouchableOpacity onPress={handlePress}>
-//           <Text style={styles.text}>TAPTAP</Text>
-//         </TouchableOpacity>
-//       </Animated.View>
-//     </View>
-//   );
-// };
-
-// export default Slide;
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     alignItems:'center',
-
-//   },
-//   slide: {
-//     width: 150,
-//     height: 55,
-//     backgroundColor: 'lightblue',
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     borderRadius: 10,
-//     position: 'absolute',
-//     top: 10,
-//     bottom:10,
-//   },
-//   text: {
-//     color: 'white',
-//     fontWeight: 'bold',
-//   },
-// });
-
-
-
-
-
-
-
-
-
 import React, { useState } from 'react';
-import { TouchableHighlight, StyleSheet, Text, TextInput, View, ToastAndroid } from 'react-native';
+import { TouchableOpacity, StyleSheet, Text, TextInput, View, ToastAndroid } from 'react-native';
 
 const Slide = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLogined, setIsLogined] = useState(false);
+  const [isLoginAttempted, setIsLoginAttempted] = useState(false);
 
   const inputChangeHandler = (value, name) => {
     if (name === 'username') {
@@ -93,6 +16,7 @@ const Slide = () => {
   };
 
   const login = () => {
+    setIsLoginAttempted(true);
     if (username === 'code' && password === 'code') {
       setIsLogined(true);
     } else {
@@ -100,12 +24,11 @@ const Slide = () => {
     }
   };
 
-  const fun = () => {
-    ToastAndroid.show('A pikachu appeared nearby !', ToastAndroid.CENTER);
-  };
+
 
   return (
-    <View style={LOCAL_STYLES.wrapper} testID="app-root" accessibilityLabel="app-root">
+    <View style={styles.wrapper} testID="app-root" accessibilityLabel="app-root">
+      <Text style={styles.header}>Login</Text>
       <InputField
         name="username"
         placeholder="Username"
@@ -120,65 +43,94 @@ const Slide = () => {
         onChangeText={inputChangeHandler}
         secureTextEntry={true}
       />
-      <Text accessibilityLabel="loginstatus">{isLogined ? "SUCCESS" : "FAIL"}</Text>
-      <TouchableHighlight
-        style={LOCAL_STYLES.buttonContainer}
+      {isLoginAttempted && (
+        <Text style={[styles.loginStatus,
+        { color: isLogined ? '#27ae60' : '#e74c3c' }
+        ]} accessibilityLabel="loginstatus">
+          {isLogined ? "Login Successful!" : "Login Failed"}
+        </Text>
+      )}
+      <TouchableOpacity
+        style={styles.buttonContainer}
         accessibilityLabel="login"
         onPress={login}
       >
-        <Text style={{ color: 'white' }}>LOGIN</Text>
-      </TouchableHighlight>
+        <Text style={styles.buttonText}>LOGIN</Text>
+      </TouchableOpacity>
     </View>
   );
 };
 
 const InputField = ({ name, placeholder, value, onChangeText, secureTextEntry }) => {
   return (
-    <View style={LOCAL_STYLES.inputContainer}>
+    <View style={styles.inputContainer}>
       <TextInput
         accessibilityLabel={name}
         placeholder={placeholder}
-        placeholderTextColor="white"
-        style={LOCAL_STYLES.input}
+        placeholderTextColor="#bbb"
+        style={styles.input}
         secureTextEntry={secureTextEntry}
         onChangeText={(text) => onChangeText(text, name)}
-        value={value}  // Ensure this is set correctly
+        value={value}
       />
     </View>
   );
 };
 
-const LOCAL_STYLES = StyleSheet.create({
+const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center"
+    backgroundColor: '#f8f9fa',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  header: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 40,
+    color: '#2c3e50',
   },
   inputContainer: {
-    borderBottomColor: '#AFAFAF',
-    backgroundColor: 'grey',
-    borderBottomWidth: 1,
-    marginBottom: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '80%',
-    borderColor: 'blue',
-    borderWidth: 1
-  },
-  buttonContainer: {
-    height: 45,
-    width: 250,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderBottomColor: '#dfe6e9',
+    backgroundColor: '#ffffff',
+    borderRadius: 25,
     marginBottom: 20,
-    borderRadius: 20,
-    backgroundColor: "green"
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+    width: '95%',
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
   },
   input: {
-    color: 'red',
-    width: '100%'
-  }
+    height: 50,
+    fontSize: 16,
+    color: '#2c3e50',
+    width: '90%'
+  },
+  loginStatus: {
+    marginVertical: 15,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  buttonContainer: {
+    backgroundColor: '#2980b9',
+    borderRadius: 25,
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    elevation: 3,
+    marginTop: 10,
+    shadowColor: '#2c3e50',
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
+  },
 });
 
 export default Slide;
