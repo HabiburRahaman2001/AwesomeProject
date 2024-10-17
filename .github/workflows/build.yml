@@ -65,6 +65,70 @@
 
 
 
+# name: Build Apk
+# on:
+#   push:
+#     branches: [ "main" ]
+
+# jobs:
+#   build-and-test:
+#     runs-on: ubuntu-latest
+#     strategy:
+#       matrix:
+#         api-level: [34]
+
+#     steps:
+#       - uses: actions/checkout@v3  # Checkout repository
+
+#       - name: Use Node.js
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: '20.x'
+#           cache: 'yarn'
+
+#       - name: Install dependencies
+#         run: yarn
+
+#       - name: Set Up JDK
+#         uses: actions/setup-java@v3
+#         with:
+#           distribution: 'zulu'
+#           java-version: '17'
+#           cache: 'gradle'
+
+#       - name: Make gradlew executable
+#         run: chmod +x ./android/gradlew
+
+#       - name: Clean project
+#         run: ./gradlew clean
+#         working-directory: ./android
+
+#       - name: Build APK
+#         id: build_apk
+#         run: ./gradlew assembleRelease --stacktrace
+#         working-directory: ./android
+
+#       - name: Upload APK Release
+#         if: success()
+#         uses: actions/upload-artifact@v3
+#         with:
+#           name: Apk release generated
+#           path: android/app/build/outputs/apk/release/app-release.apk   
+
+#       - name: Set APK path environment variable
+#         if: success()  # Only set if the build was successful
+#         run: echo "APK_PATH=android/app/build/outputs/apk/release/app-release.apk" >> $GITHUB_ENV
+
+#       - name: Store APK in project path
+#         run: |
+#           cp android/app/build/outputs/apk/release/app-release.apk ./app-release.apk
+
+#       - name: Run WebDriverIO tests
+#         if: success()  # Only run tests if the APK was built and uploaded successfully
+#         run: npx wdio ./wdio.conf.js
+
+
+
 name: Build Apk
 on:
   push:
@@ -108,21 +172,21 @@ jobs:
         run: ./gradlew assembleRelease --stacktrace
         working-directory: ./android
 
-      - name: Upload APK Release
-        if: success()
-        uses: actions/upload-artifact@v3
-        with:
-          name: Apk release generated
-          path: android/app/build/outputs/apk/release/app-release.apk   
-
       - name: Set APK path environment variable
         if: success()  # Only set if the build was successful
         run: echo "APK_PATH=android/app/build/outputs/apk/release/app-release.apk" >> $GITHUB_ENV
 
-      - name: Store APK in project path
-        run: |
-          cp android/app/build/outputs/apk/release/app-release.apk ./app-release.apk
-
       - name: Run WebDriverIO tests
-        if: success()  # Only run tests if the APK was built and uploaded successfully
+        if: success()  # Only run tests if the APK was built successfully
         run: npx wdio ./wdio.conf.js
+
+      - name: Store APK in project path
+        if: success() && ${{ steps.build_apk.outcome == 'success' && steps.run_tests.outcome == 'success' }}
+        run: cp android/app/build/outputs/apk/release/app-release.apk ./app-release.apk
+
+      - name: Upload APK Release
+        if: success() && ${{ steps.build_apk.outcome == 'success' && steps.run_tests.outcome == 'success' }}
+        uses: actions/upload-artifact@v3
+        with:
+          name: Apk release generated
+          path: android/app/build/outputs/apk/release/app-release.apk
